@@ -3,32 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clue Solver - Local Storage Pro</title>
+    <title>Clue Solver - Premium Mobile Edition</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
             --danger: #ef4444;
-            --success: #22c55e;
+            --success: #10b981;
             --warning: #f59e0b;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --radius: 16px;
+            --radius: 20px;
+            --radius-sm: 12px;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
-            --header-bg: #f8fafc;
+            --header-bg: rgba(248, 250, 252, 0.8);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
         }
 
         body.dark-mode {
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
+            --bg: #020617;
+            --card-bg: #0f172a;
+            --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            --border: #334155;
-            --header-bg: #1e293b;
+            --border: #1e293b;
+            --header-bg: rgba(2, 6, 23, 0.8);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
         * { 
             box-sizing: border-box; 
@@ -38,24 +49,22 @@
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             line-height: 1.5;
-            padding-bottom: calc(80px + var(--safe-bottom));
+            padding-bottom: calc(90px + var(--safe-bottom));
             font-size: 16px; 
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s;
         }
 
         .container { 
-            max-width: 1000px; 
+            max-width: 800px; 
             margin: 0 auto; 
-            padding: 10px; 
+            padding: 12px; 
         }
 
-        @media (min-width: 768px) {
-            .container { padding: 24px; }
-        }
+        @media (min-width: 768px) { .container { padding: 32px; } }
 
         .hidden { display: none !important; }
         
@@ -63,258 +72,208 @@
             background: var(--card-bg); 
             border-radius: var(--radius); 
             border: 1px solid var(--border); 
-            padding: 16px; 
+            padding: 20px; 
             margin-bottom: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+            box-shadow: var(--shadow); 
+            transition: transform 0.2s, background-color 0.3s;
         }
 
-        h1, h2, h3 { font-weight: 800; letter-spacing: -0.025em; }
-        button { cursor: pointer; border: none; font-weight: 700; transition: all 0.2s; }
+        h1, h2, h3 { font-weight: 800; letter-spacing: -0.04em; }
+        button { cursor: pointer; border: none; font-weight: 700; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        button:active { transform: scale(0.96); opacity: 0.9; }
         
-        .setup-header { text-align: center; margin-bottom: 24px; padding: 10px; position: relative; }
-        .setup-header h1 { font-size: clamp(1.8rem, 8vw, 2.5rem); color: var(--text-main); }
-        .setup-header p { color: var(--text-muted); font-size: 0.9rem; }
+        .setup-header { text-align: center; margin-bottom: 32px; padding: 10px; position: relative; }
+        .setup-header h1 { font-size: clamp(2rem, 10vw, 3rem); color: var(--text-main); background: linear-gradient(135deg, var(--primary), #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .setup-header p { color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-top: 4px; }
 
         .theme-toggle-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 8px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: absolute; top: 10px; right: 10px;
+            background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main);
+            width: 44px; height: 44px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow);
         }
 
-        .form-section { margin-bottom: 24px; }
-        .form-section h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .form-section { margin-bottom: 32px; }
+        .form-section h2 { font-size: 1.25rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
         
-        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        @media (min-width: 640px) {
-            .player-inputs { grid-template-columns: repeat(2, 1fr); }
-        }
+        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 640px) { .player-inputs { grid-template-columns: repeat(2, 1fr); } }
         
         .player-input-row { 
-            background: var(--bg); 
-            border: 1px solid var(--border); 
-            padding: 10px; 
-            border-radius: 12px; 
-            display: flex; 
-            gap: 8px; 
-            align-items: center; 
+            background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); 
+            display: flex; gap: 10px; align-items: center; transition: border-color 0.2s;
         }
-        .player-input-row input[type="text"] { background: transparent; border: none; font-weight: 600; outline: none; flex: 1; min-width: 0; font-size: 16px; color: var(--text-main); }
-        .player-input-row input[type="number"] { width: 45px; border: 1px solid var(--border); border-radius: 6px; padding: 6px; font-weight: 700; text-align: center; font-size: 14px; background: var(--card-bg); color: var(--text-main); }
-        .player-badge { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; font-weight: bold; }
+        .player-input-row:focus-within { border-color: var(--primary); ring: 2px var(--primary); }
+        .player-input-row input[type="text"] { background: transparent; border: none; font-weight: 700; outline: none; flex: 1; min-width: 0; font-size: 16px; color: var(--text-main); }
+        .player-input-row input[type="number"] { width: 50px; border: 1px solid var(--border); border-radius: 8px; padding: 6px; font-weight: 800; text-align: center; font-size: 14px; background: var(--card-bg); color: var(--text-main); }
+        .player-badge { background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; font-weight: bold; }
         
-        .btn-remove-player { background: #fee2e2; color: var(--danger); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-        body.dark-mode .btn-remove-player { background: #450a0a; color: #fca5a5; }
+        .btn-remove-player { background: #fee2e2; color: var(--danger); width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+        body.dark-mode .btn-remove-player { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
 
-        .label-small { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .label-small { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
-        .card-pill { padding: 12px 8px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border); font-size: 12px; font-weight: 700; text-align: center; color: var(--text-main); }
-        .card-pill.selected { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+        .card-pill { padding: 14px 10px; border-radius: 14px; background: var(--card-bg); border: 1px solid var(--border); font-size: 13px; font-weight: 700; text-align: center; color: var(--text-main); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .card-pill.selected { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3); transform: translateY(-2px); }
 
-        .btn-start { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1.1rem; margin-top: 16px; }
+        .btn-start { width: 100%; padding: 18px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1.1rem; margin-top: 24px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
 
+        /* Navigation */
         .nav-tabs { 
-            display: flex; 
-            gap: 4px; 
-            margin-bottom: 16px; 
-            background: var(--header-bg);
-            padding: 4px;
-            border-radius: 14px;
-            position: sticky; 
-            top: 10px; 
-            z-index: 100; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+            display: flex; gap: 6px; margin-bottom: 20px; background: var(--header-bg); padding: 6px; border-radius: 18px; 
+            position: sticky; top: 12px; z-index: 100; box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border);
         }
-        .tab-btn { flex: 1; padding: 12px 4px; border-radius: 10px; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 800; text-align: center; white-space: nowrap; }
-        .tab-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn { flex: 1; padding: 12px 6px; border-radius: 14px; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 800; text-align: center; white-space: nowrap; }
+        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-        .assistant-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 16px; padding: 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; }
-        .assistant-box.my-turn { background: #eff6ff; border-color: #bfdbfe; }
+        /* Assistant */
+        .assistant-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.3s; }
+        .assistant-box.my-turn { background: #eff6ff; border-color: #bfdbfe; box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.15); }
         body.dark-mode .assistant-box { background: #451a03; border-color: #92400e; }
         body.dark-mode .assistant-box.my-turn { background: #1e3a8a; border-color: #2563eb; }
         
-        .assistant-icon { font-size: 20px; flex-shrink: 0; }
-        .assistant-content h4 { font-size: 10px; text-transform: uppercase; color: #b45309; letter-spacing: 0.05em; margin-bottom: 6px; }
-        .assistant-box.my-turn h4 { color: var(--primary); }
+        .assistant-content h4 { font-size: 11px; text-transform: uppercase; color: #b45309; letter-spacing: 0.1em; margin-bottom: 8px; }
         body.dark-mode .assistant-content h4 { color: #fcd34d; }
         body.dark-mode .assistant-box.my-turn h4 { color: #93c5fd; }
 
-        .assistant-suggestion { display: flex; gap: 6px; flex-wrap: wrap; }
-        .sugg-chip { background: #fef3c7; padding: 6px 12px; border-radius: 8px; font-size: 13px; border: 1px solid #fde68a; font-weight: 700; color: #92400e; }
+        .sugg-chip { background: #fef3c7; padding: 8px 14px; border-radius: 12px; font-size: 14px; border: 1px solid #fde68a; font-weight: 800; color: #92400e; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .assistant-box.my-turn .sugg-chip { background: #dbeafe; border-color: #bfdbfe; color: #1e40af; }
         body.dark-mode .sugg-chip { background: #78350f; color: #fef3c7; border-color: #92400e; }
         body.dark-mode .assistant-box.my-turn .sugg-chip { background: #1e40af; color: #dbeafe; border-color: #2563eb; }
 
-        .turn-card { background: #eef2ff; border: 1px solid #c7d2fe; padding: 14px; border-radius: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .turn-card { background: #eef2ff; border: 1px solid #c7d2fe; padding: 16px; border-radius: var(--radius); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
         body.dark-mode .turn-card { background: #1e1b4b; border-color: #312e81; }
-        .turn-info { display: flex; align-items: center; gap: 10px; }
         .turn-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: pulse 1s infinite alternate; }
-        .turn-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-        body.dark-mode .turn-label { color: #818cf8; }
-        .turn-name { font-weight: 800; color: #1e1b4b; font-size: 1.1rem; }
+        .turn-label { font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        .turn-name { font-weight: 900; color: #1e1b4b; font-size: 1.25rem; letter-spacing: -0.03em; }
         body.dark-mode .turn-name { color: #e0e7ff; }
 
-        .solution-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
-        @media (min-width: 480px) { .solution-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
-        .solution-card { padding: 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--card-bg); display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .solution-card.found { border-color: var(--success); background: #f0fdf4; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1); }
+        .solution-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
+        @media (min-width: 480px) { .solution-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
+        .solution-card { padding: 16px 12px; border-radius: var(--radius); border: 2px solid var(--border); background: var(--card-bg); display: flex; flex-direction: column; align-items: center; }
+        .solution-card.found { border-color: var(--success); background: #ecfdf5; transform: scale(1.02); box-shadow: 0 10px 20px -8px rgba(16, 185, 129, 0.2); }
         body.dark-mode .solution-card.found { background: #064e3b; border-color: var(--success); }
-        .solution-label { font-size: 9px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .solution-value { font-size: 1rem; font-weight: 800; color: var(--text-main); }
-        .solution-card.found .solution-value { color: #166534; }
+        .solution-label { font-size: 10px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .solution-value { font-size: 1.1rem; font-weight: 900; color: var(--text-main); }
+        .solution-card.found .solution-value { color: #065f46; }
         body.dark-mode .solution-card.found .solution-value { color: #34d399; }
 
+        /* Table Design */
         .table-wrap { 
-            overflow-x: auto; 
-            background: var(--card-bg); 
-            border-radius: var(--radius); 
-            border: 1px solid var(--border); 
-            -webkit-overflow-scrolling: touch;
-            position: relative;
+            overflow-x: auto; background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); 
+            -webkit-overflow-scrolling: touch; position: relative; box-shadow: var(--shadow);
         }
         table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
-        th, td { padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 13px; min-width: 60px; color: var(--text-main); }
-        
+        th, td { padding: 14px 10px; border-bottom: 1px solid var(--border); font-size: 14px; min-width: 65px; color: var(--text-main); }
         th:first-child, td:first-child { 
-            min-width: 130px; 
-            width: 140px;
-            position: sticky; 
-            left: 0; 
-            background: var(--card-bg); 
-            z-index: 10;
-            border-right: 2px solid var(--border);
-            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+            min-width: 140px; width: 150px; position: sticky; left: 0; background: var(--card-bg); z-index: 10;
+            border-right: 1px solid var(--border); font-weight: 700;
         }
         th:first-child { z-index: 20; background: var(--header-bg); }
-        
-        th { background: var(--header-bg); font-weight: 700; color: var(--text-muted); font-size: 10px; text-transform: uppercase; vertical-align: middle; }
-        
-        .header-cell-content { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .header-edit { background: transparent; border: none; font-family: inherit; font-weight: 800; color: var(--text-main); font-size: 11px; text-transform: uppercase; width: 100%; text-align: center; padding: 4px 0; outline: none; }
-        .card-count-indicator { font-size: 9px; color: var(--text-muted); font-weight: 600; }
+        th { background: var(--header-bg); font-weight: 800; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .category-row { background: var(--header-bg); font-weight: 900; font-size: 9px; text-transform: uppercase; color: var(--primary); }
-        body.dark-mode .category-row { color: #818cf8; }
-        .category-row td { padding: 8px 12px; border-right: none; }
+        .category-row { background: var(--header-bg); font-weight: 900; font-size: 10px; text-transform: uppercase; color: var(--primary); }
+        .category-row td { padding: 10px 16px; }
 
-        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.1s; position: relative; }
-        .deduction-cell:active { background: rgba(0,0,0,0.05); }
-        body.dark-mode .deduction-cell:active { background: rgba(255,255,255,0.05); }
-
-        .cell-yes { color: var(--success); text-align: center; font-weight: 800; font-size: 18px; }
-        .cell-no { color: var(--danger); text-align: center; font-weight: 700; font-size: 16px; opacity: 0.4; }
-        .cell-unknown { text-align: center; color: #cbd5e1; font-weight: 500; font-size: 16px; }
+        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.15s; }
+        .cell-yes { color: var(--success); text-align: center; font-weight: 900; font-size: 20px; }
+        .cell-no { color: var(--danger); text-align: center; font-weight: 800; font-size: 18px; opacity: 0.4; }
+        .cell-unknown { text-align: center; color: #cbd5e1; font-weight: 600; font-size: 18px; }
         
-        .manual-yes { background: #dcfce7 !important; border-radius: 4px; }
-        body.dark-mode .manual-yes { background: #064e3b !important; }
-        .manual-no { background: #fee2e2 !important; border-radius: 4px; }
-        body.dark-mode .manual-no { background: #450a0a !important; }
+        .manual-yes { background: rgba(16, 185, 129, 0.1) !important; box-shadow: inset 0 0 0 2px var(--success); }
+        .manual-no { background: rgba(239, 68, 68, 0.1) !important; box-shadow: inset 0 0 0 2px var(--danger); }
 
         .row-found { background-color: #f0fdf4 !important; }
-        body.dark-mode .row-found { background-color: #064e3b !important; }
-        .row-found td:first-child { background-color: #f0fdf4 !important; color: #166534; }
-        body.dark-mode .row-found td:first-child { background-color: #064e3b !important; color: #34d399; }
-        
+        .row-found td:first-child { color: #059669 !important; }
         .row-recommended { background-color: #eff6ff !important; }
-        body.dark-mode .row-recommended { background-color: #1e3a8a !important; }
-        .row-recommended td:first-child { background-color: #eff6ff !important; color: #1e40af; font-weight: 800; border-left: 4px solid #3b82f6; }
-        body.dark-mode .row-recommended td:first-child { background-color: #1e3a8a !important; color: #93c5fd; }
+        .row-recommended td:first-child { color: #2563eb !important; border-left: 6px solid var(--primary); }
 
-        .form-group { margin-bottom: 24px; }
-        .form-group label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
-        .select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .btn-option { padding: 14px 8px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 14px; text-align: center; font-weight: 700; display: flex; align-items: center; justify-content: center; min-height: 54px; color: var(--text-main); }
-        .btn-option.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
-        .dropdown { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border); font-weight: 700; font-size: 16px; background: var(--bg); appearance: none; cursor: pointer; color: var(--text-main); }
+        /* Modals & Forms */
+        .dropdown { 
+            width: 100%; padding: 18px; border-radius: 16px; border: 1px solid var(--border); 
+            font-weight: 700; font-size: 17px; background: var(--bg); color: var(--text-main); appearance: none;
+        }
 
-        .log-item { background: var(--card-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; }
-        @media (min-width: 640px) { .log-item { flex-direction: row; justify-content: space-between; align-items: center; } }
-        .log-main { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .log-who { font-weight: 800; font-size: 14px; color: var(--text-main); }
-        .log-cards { display: flex; flex-wrap: wrap; gap: 6px; }
-        .log-badge { font-size: 11px; padding: 6px 12px; background: var(--bg); border-radius: 8px; color: var(--text-muted); font-weight: 700; border: 1px solid var(--border); }
-        .log-actions { display: flex; gap: 10px; align-items: center; width: 100%; }
-        @media (min-width: 640px) { .log-actions { width: auto; } }
-        .log-result { font-size: 13px; color: var(--primary); font-weight: 700; background: #eef2ff; padding: 10px 14px; border-radius: 12px; flex: 1; }
-        body.dark-mode .log-result { background: #1e1b4b; color: #818cf8; }
-        .btn-icon-action { background: var(--bg); color: var(--text-muted); padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 800; border: 1px solid var(--border); }
-        .btn-icon-action.delete { color: var(--danger); background: #fee2e2; }
-        body.dark-mode .btn-icon-action.delete { background: #450a0a; color: #fca5a5; }
+        .log-item { 
+            background: var(--card-bg); padding: 20px; border-radius: 22px; border: 1px solid var(--border); 
+            margin-bottom: 12px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow);
+        }
+        .log-who { font-weight: 900; font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
+        .log-badge { font-size: 12px; padding: 6px 14px; background: var(--bg); border-radius: 12px; color: var(--text-muted); font-weight: 800; border: 1px solid var(--border); }
+        .log-result { font-size: 14px; color: var(--primary); font-weight: 800; background: #eef2ff; padding: 12px 18px; border-radius: 14px; flex: 1; }
+        body.dark-mode .log-result { background: #1e1b4b; color: #a5b4fc; }
 
-        #syncIndicator { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 800; color: var(--text-muted); background: var(--card-bg); backdrop-filter: blur(4px); padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px; z-index: 1000; text-transform: uppercase; letter-spacing: 0.05em; }
-        .syncing-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+        #syncIndicator { 
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            font-size: 11px; font-weight: 900; color: var(--text-muted); background: var(--card-bg); 
+            padding: 10px 24px; border-radius: 25px; border: 1px solid var(--border); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; z-index: 1000; 
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+        .syncing-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
         .syncing .syncing-dot { background: var(--primary); animation: pulse 0.8s infinite alternate; }
-        @keyframes pulse { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+        @keyframes pulse { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.3); } }
     </style>
 </head>
 <body class="">
 
 <div class="container" id="app">
-    <div id="setupView">
+    <!-- SETUP VIEW -->
+    <div id="setupView" class="animate-in">
         <header class="setup-header">
-            <button class="theme-toggle-btn" onclick="window.toggleTheme()" title="Toggle Dark Mode">🌓</button>
+            <button class="theme-toggle-btn" onclick="window.toggleTheme()" title="Toggle Theme">🌓</button>
             <h1>CLUE SOLVER</h1>
-            <p>Mobile Deduction Assistant</p>
+            <p>Strategic Deduction Assistant</p>
         </header>
         <div class="card">
             <div class="form-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h2>Players (Turn Order)</h2>
-                    <span class="label-small">Cards</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h2>Investigation Team</h2>
+                    <span class="label-small">Cards Held</span>
                 </div>
                 <div class="player-inputs" id="playerInputsContainer"></div>
-                <button onclick="window.addPlayerInput()" style="margin-top:16px; background:none; color:var(--primary); font-size: 14px; font-weight: 800;">+ ADD PLAYER</button>
+                <button onclick="window.addPlayerInput()" style="margin-top:20px; background:none; color:var(--primary); font-size: 15px; font-weight: 800;">+ ADD PLAYER</button>
             </div>
             <div class="form-section">
                 <h2>Your Hand</h2>
                 <div id="setupCardsGrid" class="card-grid"></div>
             </div>
-            <button class="btn-start" onclick="window.startGame()">Start Investigation</button>
+            <button class="btn-start" onclick="window.startGame()">Initialize Solver</button>
         </div>
     </div>
 
+    <!-- PLAY VIEW -->
     <div id="playView" class="hidden">
         <div class="nav-tabs">
-            <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">BOARD</button>
-            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">LOG</button>
-            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ SUGGEST</button>
-            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 40px; padding: 0;">🌓</button>
-            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto; padding: 12px 10px;">RESET</button>
+            <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">ANALYSIS</button>
+            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">HISTORY</button>
+            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ INQUIRY</button>
+            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 50px;">🌓</button>
+            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto;">RESET</button>
         </div>
 
-        <div id="tab-BOARD">
+        <div id="tab-BOARD" class="animate-in">
             <div class="turn-card">
                 <div class="turn-info">
                     <div class="turn-dot" id="turnStatusDot"></div>
                     <div>
-                        <div class="turn-label">Active Turn</div>
+                        <div class="turn-label">Current Turn</div>
                         <div class="turn-name" id="currentTurnNameDisplay">Name</div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" title="Prev">◀</button>
-                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" title="Next">▶</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" style="padding: 10px 15px; border-radius: 12px;">◀</button>
+                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" style="padding: 10px 15px; border-radius: 12px;">▶</button>
                 </div>
             </div>
 
             <div id="recommendationBox" class="assistant-box">
                 <div class="assistant-icon">💡</div>
                 <div class="assistant-content">
-                    <h4 id="recommendationHeader">Inquiry Strategy</h4>
-                    <div id="recommendationText" class="assistant-suggestion">Calculating...</div>
+                    <h4 id="recommendationHeader">Strategic Inquiry</h4>
+                    <div id="recommendationText" class="assistant-suggestion">Gathering intelligence...</div>
                 </div>
             </div>
             <div class="solution-grid" id="solutionBanner"></div>
@@ -324,45 +283,42 @@
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-            <p style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 12px;">
-                💡 Tap cells to toggle manual overrides (✔ / x)
-            </p>
         </div>
 
         <div id="tab-LOG" class="hidden">
             <div id="logContainer"></div>
         </div>
 
-        <div id="tab-NEW" class="hidden">
+        <div id="tab-NEW" class="hidden animate-in">
             <div class="card">
                 <div class="form-group">
-                    <label>Suggester</label>
+                    <label>Inquirer</label>
                     <div id="suggesterOptions" class="select-grid"></div>
                 </div>
                 <div id="inquirySection">
                     <div class="form-group">
-                        <label>Suggestion Cards</label>
-                        <div style="display:flex; flex-direction: column; gap: 10px;">
+                        <label>Targeted Cards</label>
+                        <div style="display:flex; flex-direction: column; gap: 12px;">
                             <select id="selSuspect" class="dropdown" onchange="window.updateFormSelection()"></select>
                             <select id="selWeapon" class="dropdown" onchange="window.updateFormSelection()"></select>
                             <select id="selRoom" class="dropdown" onchange="window.updateFormSelection()"></select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Outcome</label>
+                        <label>Reveal Outcome</label>
                         <div id="showerOptions" class="select-grid"></div>
                     </div>
-                    <div id="specificCardSection" class="form-group hidden">
-                        <label>Which card was revealed to you?</label>
+                    <div id="specificCardSection" class="form-group hidden animate-in">
+                        <label>Specific Card Shown</label>
                         <div id="shownCardOptions" class="select-grid"></div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Result</button>
-                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: #e2e8f0; color: #475569;">Pass Turn</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Record</button>
+                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: var(--border); color: var(--text-muted);">Pass Turn</button>
                 </div>
-                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: #cbd5e1; color: #1e293b; margin-top: 10px;">Cancel Edit</button>
+                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: var(--bg); color: var(--text-muted); margin-top: 14px; border: 1px solid var(--border);">Abort Edit</button>
             </div>
         </div>
     </div>
@@ -370,11 +326,11 @@
 
 <div id="syncIndicator">
     <div class="syncing-dot"></div>
-    <span id="syncText">Saved</span>
+    <span id="syncText">State Saved</span>
 </div>
 
 <script type="module">
-    // --- State Variables ---
+    // --- State Management ---
     let players = []; 
     let myCards = []; 
     let suggestions = []; 
@@ -387,7 +343,7 @@
     let tempSugg = { suggesterId: null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
     let editingIndex = null;
 
-    const STORAGE_KEY = 'clue_solver_data_v1';
+    const STORAGE_KEY = 'clue_solver_premium_v1';
 
     const CATEGORIES = {
         SUSPECTS: ['Miss Scarlett', 'Colonel Mustard', 'Dr. Orchid', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum'],
@@ -396,24 +352,14 @@
     };
     const ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
 
-    // --- Persistence Logic ---
+    // --- Persistence ---
     function saveState() {
-        const data = {
-            players, 
-            myCards, 
-            suggestions, 
-            manualOverrides, 
-            gameState, 
-            currentTurnIdx, 
-            theme,
-            timestamp: Date.now()
-        };
+        const data = { players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, theme, timestamp: Date.now() };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        
         const indicator = document.getElementById('syncIndicator');
         if (indicator) {
             indicator.classList.add('syncing');
-            setTimeout(() => indicator.classList.remove('syncing'), 500);
+            setTimeout(() => indicator.classList.remove('syncing'), 600);
         }
     }
 
@@ -429,11 +375,8 @@
                 gameState = d.gameState || 'SETUP';
                 currentTurnIdx = d.currentTurnIdx || 0;
                 theme = d.theme || 'light';
-                
                 document.body.classList.toggle('dark-mode', theme === 'dark');
-            } catch (e) {
-                console.error("Failed to load state", e);
-            }
+            } catch (e) { console.error("Persistence error", e); }
         }
         isInitialLoad = false;
         render();
@@ -446,7 +389,7 @@
         saveTimeout = setTimeout(saveState, 500); 
     }
 
-    // --- Global Interface Functions ---
+    // --- Global Handlers ---
     window.toggleTheme = () => {
         theme = theme === 'light' ? 'dark' : 'light';
         document.body.classList.toggle('dark-mode', theme === 'dark');
@@ -474,13 +417,13 @@
         if (!cont) return;
         const id = existingId !== null ? String(existingId) : String(Date.now() + Math.random());
         const div = document.createElement('div');
-        div.className = 'player-input-row';
+        div.className = 'player-input-row animate-in';
         div.dataset.playerId = id;
         div.innerHTML = `
             <div class="player-badge">#</div>
             <input type="text" placeholder="Name" value="${n||'Player'}" oninput="window.syncSetupToState()">
             <input type="number" value="${c}" min="1" oninput="window.syncSetupToState()">
-            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();" title="Remove Player">×</button>
+            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();">×</button>
         `;
         cont.appendChild(div);
         if (existingId === null) window.syncSetupToState();
@@ -488,7 +431,7 @@
 
     window.startGame = () => {
         window.syncSetupToState();
-        if (players.length < 2) return alert("Add at least 2 players.");
+        if (players.length < 2) return;
         gameState = 'PLAYING'; 
         currentTurnIdx = 0;
         triggerSave(); 
@@ -496,9 +439,13 @@
     };
 
     window.switchTab = (t) => {
-        ['BOARD', 'LOG', 'NEW'].forEach(id => {
+        const tabs = ['BOARD', 'LOG', 'NEW'];
+        tabs.forEach(id => {
             const el = document.getElementById('tab-' + id);
-            if (el) el.classList.toggle('hidden', id !== t);
+            if (el) {
+                el.classList.toggle('hidden', id !== t);
+                if (id === t) el.classList.add('animate-in');
+            }
         });
         ['tabBtnBoard', 'tabBtnLog', 'tabBtnNew'].forEach(id => {
             const el = document.getElementById(id);
@@ -542,25 +489,17 @@
 
     window.submitSuggestion = () => {
         const s = {
-            ...tempSugg, 
-            type: 'SUGGESTION',
+            ...tempSugg, type: 'SUGGESTION',
             suspect: document.getElementById('selSuspect').value, 
             weapon: document.getElementById('selWeapon').value, 
             room: document.getElementById('selRoom').value
         };
-        if (editingIndex !== null) { 
-            suggestions[editingIndex] = s; 
-            editingIndex = null; 
-        } else { 
-            suggestions.push(s); 
-            currentTurnIdx = (currentTurnIdx + 1) % players.length; 
-        }
+        if (editingIndex !== null) { suggestions[editingIndex] = s; editingIndex = null; }
+        else { suggestions.push(s); currentTurnIdx = (currentTurnIdx + 1) % players.length; }
         triggerSave(); render(); window.switchTab('BOARD');
         tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
-        const submitBtn = document.getElementById('submitBtn');
-        if (submitBtn) submitBtn.innerText = 'Log Result';
-        const cancelBtn = document.getElementById('cancelEditBtn');
-        if (cancelBtn) cancelBtn.classList.add('hidden');
+        document.getElementById('submitBtn').innerText = 'Log Record';
+        document.getElementById('cancelEditBtn').classList.add('hidden');
     };
 
     window.skipTurn = () => {
@@ -580,25 +519,21 @@
             document.getElementById('selWeapon').value = s.weapon;
             document.getElementById('selRoom').value = s.room;
         }
-        const submitBtn = document.getElementById('submitBtn');
-        if (submitBtn) submitBtn.innerText = 'Update';
-        const cancelBtn = document.getElementById('cancelEditBtn');
-        if (cancelBtn) cancelBtn.classList.remove('hidden');
+        document.getElementById('submitBtn').innerText = 'Update';
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
         window.updateFormSelection();
     };
 
     window.cancelEdit = () => {
         editingIndex = null;
         tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
-        const submitBtn = document.getElementById('submitBtn');
-        if (submitBtn) submitBtn.innerText = 'Log Result';
-        const cancelBtn = document.getElementById('cancelEditBtn');
-        if (cancelBtn) cancelBtn.classList.add('hidden');
+        document.getElementById('submitBtn').innerText = 'Log Record';
+        document.getElementById('cancelEditBtn').classList.add('hidden');
         window.switchTab('LOG');
     };
 
     window.deleteSuggestion = (index) => {
-        if (confirm('Delete this log?')) { suggestions.splice(index, 1); triggerSave(); render(); }
+        if (confirm('Delete log?')) { suggestions.splice(index, 1); triggerSave(); render(); }
     };
 
     window.updatePlayerName = (id, v) => { 
@@ -608,10 +543,9 @@
     };
 
     window.resetGame = () => { 
-        if (confirm('Reset everything?')) { 
+        if (confirm('Reset entire session?')) { 
             players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
-            const cont = document.getElementById('playerInputsContainer');
-            if (cont) cont.innerHTML = ''; 
+            document.getElementById('playerInputsContainer').innerHTML = ''; 
             localStorage.removeItem(STORAGE_KEY);
             render(); 
         } 
@@ -635,26 +569,23 @@
             if (tempSugg.showerId !== -1) {
                 spec.classList.remove('hidden');
                 const cards = [document.getElementById('selSuspect')?.value, document.getElementById('selWeapon')?.value, document.getElementById('selRoom')?.value].filter(Boolean);
-                const optionsEl = document.getElementById('shownCardOptions');
-                if (optionsEl) optionsEl.innerHTML = `<button class="btn-option ${tempSugg.cardShown === '' ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '')">Unknown</button>` +
+                document.getElementById('shownCardOptions').innerHTML = `<button class="btn-option ${tempSugg.cardShown === '' ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '')">Unknown</button>` +
                         cards.map(c => `<button class="btn-option ${tempSugg.cardShown === c ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '${c}')">${c}</button>`).join('');
             } else { spec.classList.add('hidden'); tempSugg.cardShown = ''; }
         }
     };
 
-    // --- Deduction Logic ---
+    // --- Deductions ---
     function calculateDeductions() {
         if (!players || players.length === 0) return;
-        
         ALL_CARDS.forEach(card => {
             gameDeductionMatrix[card] = {};
             players.forEach(p => {
                 const isMe = players[0].id === p.id;
-                const hasInHand = myCards.includes(card);
                 const manual = manualOverrides[card]?.[p.id] || 0;
                 if (manual !== 0) gameDeductionMatrix[card][p.id] = manual;
-                else if (isMe) gameDeductionMatrix[card][p.id] = hasInHand ? 1 : -1;
-                else gameDeductionMatrix[card][p.id] = hasInHand ? -1 : 0;
+                else if (isMe) gameDeductionMatrix[card][p.id] = myCards.includes(card) ? 1 : -1;
+                else gameDeductionMatrix[card][p.id] = myCards.includes(card) ? -1 : 0;
             });
         });
 
@@ -732,7 +663,7 @@
         return { suspect: sol.suspect || findBest(CATEGORIES.SUSPECTS), weapon: sol.weapon || findBest(CATEGORIES.WEAPONS), room: sol.room || findBest(CATEGORIES.ROOMS), allFound: !!(sol.suspect && sol.weapon && sol.room) };
     }
 
-    // --- UI Rendering ---
+    // --- UI Render ---
     function render() {
         if (gameState === 'SETUP') {
             document.getElementById('setupView')?.classList.remove('hidden');
@@ -742,10 +673,8 @@
             document.getElementById('setupView')?.classList.add('hidden');
             document.getElementById('playView')?.classList.remove('hidden');
             calculateDeductions();
-            const turnNameEl = document.getElementById('currentTurnNameDisplay');
-            if (turnNameEl) turnNameEl.innerText = players[currentTurnIdx]?.name || 'Unknown';
-            const dotEl = document.getElementById('turnStatusDot');
-            if (dotEl) dotEl.style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
+            document.getElementById('currentTurnNameDisplay').innerText = players[currentTurnIdx]?.name || 'Unknown';
+            document.getElementById('turnStatusDot').style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
             renderBoard();
             renderLog();
         }
@@ -753,13 +682,11 @@
 
     function renderSetup() {
         const grid = document.getElementById('setupCardsGrid');
-        if (!grid) return;
-        grid.innerHTML = '';
+        if (!grid) return; grid.innerHTML = '';
         Object.entries(CATEGORIES).forEach(([cat, items]) => {
             const h3 = document.createElement('h3');
-            h3.style.cssText = 'width:100%; font-size:9px; margin-top:12px; color:var(--text-muted);';
-            h3.innerText = cat;
-            grid.appendChild(h3);
+            h3.style.cssText = 'width:100%; font-size:10px; margin-top:16px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;';
+            h3.innerText = cat; grid.appendChild(h3);
             items.forEach(item => {
                 const btn = document.createElement('button');
                 btn.className = `card-pill ${myCards.includes(item) ? 'selected' : ''}`;
@@ -768,8 +695,8 @@
                 grid.appendChild(btn);
             });
         });
-        const pContainer = document.getElementById('playerInputsContainer');
-        if (pContainer && pContainer.children.length === 0) {
+        const pCont = document.getElementById('playerInputsContainer');
+        if (pCont && pCont.children.length === 0) {
             if (players.length) players.forEach(p => window.addPlayerInput(p.name, p.cardCount, p.id));
             else { window.addPlayerInput('Me', 6); window.addPlayerInput('Player 2', 6); window.addPlayerInput('Player 3', 6); }
         }
@@ -785,12 +712,12 @@
         const recHeader = document.getElementById('recommendationHeader');
         const recText = document.getElementById('recommendationText');
         if (recBox) recBox.classList.toggle('my-turn', isMyTurn);
-        if (recHeader) recHeader.innerText = isMyTurn ? "Your Recommended Inquiry" : "Inquiry Strategy";
-        if (recText) recText.innerHTML = rec.allFound ? `<span class="sugg-chip" style="background:#dcfce7; color:#166534;">CASE SOLVED!</span>` :
+        if (recHeader) recHeader.innerText = isMyTurn ? "Recommended for you" : "Investigation Strategy";
+        if (recText) recText.innerHTML = rec.allFound ? `<span class="sugg-chip" style="background:#d1fae5; color:#065f46;">CASE SOLVED!</span>` :
                 `<span class="sugg-chip">${rec.suspect}</span> <span class="sugg-chip">${rec.weapon}</span> <span class="sugg-chip">${rec.room}</span>`;
 
         const banner = document.getElementById('solutionBanner');
-        if (banner) banner.innerHTML = ['suspect', 'weapon', 'room'].map(key => `<div class="solution-card ${sol[key] ? 'found' : ''}"><div class="solution-label">${key}</div><div class="solution-value">${sol[key] || '?'}</div></div>`).join('');
+        if (banner) banner.innerHTML = ['suspect', 'weapon', 'room'].map(key => `<div class="solution-card ${sol[key] ? 'found' : ''} animate-in"><div class="solution-label">${key}</div><div class="solution-value">${sol[key] || '?'}</div></div>`).join('');
 
         const header = document.getElementById('tableHeader');
         if (header) header.innerHTML = '<th>Card</th>' + players.map(p => {
@@ -825,15 +752,13 @@
         const container = document.getElementById('logContainer');
         if (container) container.innerHTML = suggestions.length ? suggestions.map((s, idx) => ({ s, idx })).reverse().map(({ s, idx }) => {
             const suggester = players.find(p => String(p.id) === String(s.suggesterId))?.name || 'Someone';
-            if (s.type === 'SKIP') return `<div class="log-item"><div class="log-main"><div class="log-who">${suggester} passed turn</div></div><div class="log-actions"><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
+            if (s.type === 'SKIP') return `<div class="log-item animate-in"><div class="log-main"><div class="log-who">${suggester} skipped turn</div></div><div class="log-actions"><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
             const shower = s.showerId === -1 ? 'No one' : players.find(p => String(p.id) === String(s.showerId))?.name || 'Someone';
-            return `<div class="log-item"><div class="log-main"><div class="log-who">${suggester} asked:</div><div class="log-cards"><span class="log-badge">${s.suspect}</span><span class="log-badge">${s.weapon}</span><span class="log-badge">${s.room}</span></div></div><div class="log-actions"><div class="log-result">${shower} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div><button class="btn-icon-action" onclick="window.editSuggestion(${idx})">Edit</button><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
-        }).join('') : `<p style="text-align:center; color:var(--text-muted); padding:20px;">No suggestions logged.</p>`;
+            return `<div class="log-item animate-in"><div class="log-main"><div class="log-who">${suggester} inquired:</div><div class="log-cards"><span class="log-badge">${s.suspect}</span><span class="log-badge">${s.weapon}</span><span class="log-badge">${s.room}</span></div></div><div class="log-actions"><div class="log-result">${shower} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div><button class="btn-icon-action" onclick="window.editSuggestion(${idx})">Edit</button><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
+        }).join('') : `<p style="text-align:center; color:var(--text-muted); padding:30px; font-weight:700;">No history logged yet.</p>`;
     }
 
-    // --- Boot ---
     window.onload = loadState;
-
 </script>
 </body>
 </html>
