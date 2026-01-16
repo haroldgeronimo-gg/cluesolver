@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clue Solver - Mobile Pro</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --header-bg: #f8fafc;
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --header-bg: #1e293b;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: calc(80px + var(--safe-bottom));
+            font-size: 16px; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 10px; 
+        }
+
+        @media (min-width: 768px) {
+            .container { padding: 24px; }
+        }
+
+        .hidden { display: none !important; }
+        
+        .card { 
+            background: var(--card-bg); 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            padding: 16px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+
+        h1, h2, h3 { font-weight: 800; letter-spacing: -0.025em; }
+        button { cursor: pointer; border: none; font-weight: 700; transition: all 0.2s; }
+        
+        .setup-header { text-align: center; margin-bottom: 24px; padding: 10px; position: relative; }
+        .setup-header h1 { font-size: clamp(1.8rem, 8vw, 2.5rem); color: var(--text-main); }
+        .setup-header p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .theme-toggle-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-section { margin-bottom: 24px; }
+        .form-section h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media (min-width: 640px) {
+            .player-inputs { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        .player-input-row { 
+            background: var(--bg); 
+            border: 1px solid var(--border); 
+            padding: 10px; 
+            border-radius: 12px; 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+        }
+        .player-input-row input[type="text"] { background: transparent; border: none; font-weight: 600; outline: none; flex: 1; min-width: 0; font-size: 16px; color: var(--text-main); }
+        .player-input-row input[type="number"] { width: 45px; border: 1px solid var(--border); border-radius: 6px; padding: 6px; font-weight: 700; text-align: center; font-size: 14px; background: var(--card-bg); color: var(--text-main); }
+        .player-badge { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; font-weight: bold; }
+        
+        .btn-remove-player { background: #fee2e2; color: var(--danger); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        body.dark-mode .btn-remove-player { background: #450a0a; color: #fca5a5; }
+
+        .label-small { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
+        .card-pill { padding: 12px 8px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border); font-size: 12px; font-weight: 700; text-align: center; color: var(--text-main); }
+        .card-pill.selected { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+
+        .btn-start { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1.1rem; margin-top: 16px; }
+
+        .nav-tabs { 
+            display: flex; 
+            gap: 4px; 
+            margin-bottom: 16px; 
+            background: var(--header-bg);
+            padding: 4px;
+            border-radius: 14px;
+            position: sticky; 
+            top: 10px; 
+            z-index: 100; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+        .tab-btn { flex: 1; padding: 12px 4px; border-radius: 10px; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 800; text-align: center; white-space: nowrap; }
+        .tab-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .assistant-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 16px; padding: 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; }
+        .assistant-box.my-turn { background: #eff6ff; border-color: #bfdbfe; }
+        body.dark-mode .assistant-box { background: #451a03; border-color: #92400e; }
+        body.dark-mode .assistant-box.my-turn { background: #1e3a8a; border-color: #2563eb; }
+        
+        .assistant-icon { font-size: 20px; flex-shrink: 0; }
+        .assistant-content h4 { font-size: 10px; text-transform: uppercase; color: #b45309; letter-spacing: 0.05em; margin-bottom: 6px; }
+        .assistant-box.my-turn h4 { color: var(--primary); }
+        body.dark-mode .assistant-content h4 { color: #fcd34d; }
+        body.dark-mode .assistant-box.my-turn h4 { color: #93c5fd; }
+
+        .assistant-suggestion { display: flex; gap: 6px; flex-wrap: wrap; }
+        .sugg-chip { background: #fef3c7; padding: 6px 12px; border-radius: 8px; font-size: 13px; border: 1px solid #fde68a; font-weight: 700; color: #92400e; }
+        .assistant-box.my-turn .sugg-chip { background: #dbeafe; border-color: #bfdbfe; color: #1e40af; }
+        body.dark-mode .sugg-chip { background: #78350f; color: #fef3c7; border-color: #92400e; }
+        body.dark-mode .assistant-box.my-turn .sugg-chip { background: #1e40af; color: #dbeafe; border-color: #2563eb; }
+
+        .turn-card { background: #eef2ff; border: 1px solid #c7d2fe; padding: 14px; border-radius: 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        body.dark-mode .turn-card { background: #1e1b4b; border-color: #312e81; }
+        .turn-info { display: flex; align-items: center; gap: 10px; }
+        .turn-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: pulse 1s infinite alternate; }
+        .turn-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        body.dark-mode .turn-label { color: #818cf8; }
+        .turn-name { font-weight: 800; color: #1e1b4b; font-size: 1.1rem; }
+        body.dark-mode .turn-name { color: #e0e7ff; }
+
+        .solution-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
+        @media (min-width: 480px) { .solution-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
+        .solution-card { padding: 12px; border-radius: 14px; border: 2px solid var(--border); background: var(--card-bg); display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .solution-card.found { border-color: var(--success); background: #f0fdf4; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1); }
+        body.dark-mode .solution-card.found { background: #064e3b; border-color: var(--success); }
+        .solution-label { font-size: 9px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .solution-value { font-size: 1rem; font-weight: 800; color: var(--text-main); }
+        .solution-card.found .solution-value { color: #166534; }
+        body.dark-mode .solution-card.found .solution-value { color: #34d399; }
+
+        .table-wrap { 
+            overflow-x: auto; 
+            background: var(--card-bg); 
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
+        th, td { padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 13px; min-width: 60px; color: var(--text-main); }
+        
+        th:first-child, td:first-child { 
+            min-width: 130px; 
+            width: 140px;
+            position: sticky; 
+            left: 0; 
+            background: var(--card-bg); 
+            z-index: 10;
+            border-right: 2px solid var(--border);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+        }
+        th:first-child { z-index: 20; background: var(--header-bg); }
+        
+        th { background: var(--header-bg); font-weight: 700; color: var(--text-muted); font-size: 10px; text-transform: uppercase; vertical-align: middle; }
+        
+        .header-cell-content { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .header-edit { background: transparent; border: none; font-family: inherit; font-weight: 800; color: var(--text-main); font-size: 11px; text-transform: uppercase; width: 100%; text-align: center; padding: 4px 0; outline: none; }
+        .card-count-indicator { font-size: 9px; color: var(--text-muted); font-weight: 600; }
+
+        .category-row { background: var(--header-bg); font-weight: 900; font-size: 9px; text-transform: uppercase; color: var(--primary); }
+        body.dark-mode .category-row { color: #818cf8; }
+        .category-row td { padding: 8px 12px; border-right: none; }
+
+        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.1s; position: relative; }
+        .deduction-cell:active { background: rgba(0,0,0,0.05); }
+        body.dark-mode .deduction-cell:active { background: rgba(255,255,255,0.05); }
+
+        .cell-yes { color: var(--success); text-align: center; font-weight: 800; font-size: 18px; }
+        .cell-no { color: var(--danger); text-align: center; font-weight: 700; font-size: 16px; opacity: 0.4; }
+        .cell-unknown { text-align: center; color: #cbd5e1; font-weight: 500; font-size: 16px; }
+        
+        .manual-yes { background: #dcfce7 !important; border-radius: 4px; }
+        body.dark-mode .manual-yes { background: #064e3b !important; }
+        .manual-no { background: #fee2e2 !important; border-radius: 4px; }
+        body.dark-mode .manual-no { background: #450a0a !important; }
+
+        .row-found { background-color: #f0fdf4 !important; }
+        body.dark-mode .row-found { background-color: #064e3b !important; }
+        .row-found td:first-child { background-color: #f0fdf4 !important; color: #166534; }
+        body.dark-mode .row-found td:first-child { background-color: #064e3b !important; color: #34d399; }
+        
+        .row-recommended { background-color: #eff6ff !important; }
+        body.dark-mode .row-recommended { background-color: #1e3a8a !important; }
+        .row-recommended td:first-child { background-color: #eff6ff !important; color: #1e40af; font-weight: 800; border-left: 4px solid #3b82f6; }
+        body.dark-mode .row-recommended td:first-child { background-color: #1e3a8a !important; color: #93c5fd; }
+
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+        .select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .btn-option { padding: 14px 8px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); font-size: 14px; text-align: center; font-weight: 700; display: flex; align-items: center; justify-content: center; min-height: 54px; color: var(--text-main); }
+        .btn-option.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2); }
+        .dropdown { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border); font-weight: 700; font-size: 16px; background: var(--bg); appearance: none; cursor: pointer; color: var(--text-main); }
+
+        .log-item { background: var(--card-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px; }
+        @media (min-width: 640px) { .log-item { flex-direction: row; justify-content: space-between; align-items: center; } }
+        .log-main { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .log-who { font-weight: 800; font-size: 14px; color: var(--text-main); }
+        .log-cards { display: flex; flex-wrap: wrap; gap: 6px; }
+        .log-badge { font-size: 11px; padding: 6px 12px; background: var(--bg); border-radius: 8px; color: var(--text-muted); font-weight: 700; border: 1px solid var(--border); }
+        .log-actions { display: flex; gap: 10px; align-items: center; width: 100%; }
+        @media (min-width: 640px) { .log-actions { width: auto; } }
+        .log-result { font-size: 13px; color: var(--primary); font-weight: 700; background: #eef2ff; padding: 10px 14px; border-radius: 12px; flex: 1; }
+        body.dark-mode .log-result { background: #1e1b4b; color: #818cf8; }
+        .btn-icon-action { background: var(--bg); color: var(--text-muted); padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 800; border: 1px solid var(--border); }
+        .btn-icon-action.delete { color: var(--danger); background: #fee2e2; }
+        body.dark-mode .btn-icon-action.delete { background: #450a0a; color: #fca5a5; }
+
+        #syncIndicator { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 800; color: var(--text-muted); background: var(--card-bg); backdrop-filter: blur(4px); padding: 8px 20px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px; z-index: 1000; text-transform: uppercase; letter-spacing: 0.05em; }
+        .syncing-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+        .syncing .syncing-dot { background: var(--primary); animation: pulse 0.8s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+    </style>
+</head>
+<body class="">
+
+<div class="container" id="app">
+    <div id="setupView">
+        <header class="setup-header">
+            <button class="theme-toggle-btn" onclick="window.toggleTheme()" title="Toggle Dark Mode">🌓</button>
+            <h1>CLUE SOLVER</h1>
+            <p>Mobile Deduction Assistant</p>
+        </header>
+        <div class="card">
+            <div class="form-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2>Players (Turn Order)</h2>
+                    <span class="label-small">Cards</span>
+                </div>
+                <div class="player-inputs" id="playerInputsContainer"></div>
+                <button onclick="window.addPlayerInput()" style="margin-top:16px; background:none; color:var(--primary); font-size: 14px; font-weight: 800;">+ ADD PLAYER</button>
+            </div>
+            <div class="form-section">
+                <h2>Your Hand</h2>
+                <div id="setupCardsGrid" class="card-grid"></div>
+            </div>
+            <button class="btn-start" onclick="window.startGame()">Start Investigation</button>
+        </div>
+    </div>
+
+    <div id="playView" class="hidden">
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">BOARD</button>
+            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">LOG</button>
+            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ SUGGEST</button>
+            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 40px; padding: 0;">🌓</button>
+            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto; padding: 12px 10px;">RESET</button>
+        </div>
+
+        <div id="tab-BOARD">
+            <div class="turn-card">
+                <div class="turn-info">
+                    <div class="turn-dot" id="turnStatusDot"></div>
+                    <div>
+                        <div class="turn-label">Active Turn</div>
+                        <div class="turn-name" id="currentTurnNameDisplay">Name</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" title="Prev">◀</button>
+                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" title="Next">▶</button>
+                </div>
+            </div>
+
+            <div id="recommendationBox" class="assistant-box">
+                <div class="assistant-icon">💡</div>
+                <div class="assistant-content">
+                    <h4 id="recommendationHeader">Inquiry Strategy</h4>
+                    <div id="recommendationText" class="assistant-suggestion">Calculating...</div>
+                </div>
+            </div>
+            <div class="solution-grid" id="solutionBanner"></div>
+            <div class="table-wrap">
+                <table id="deductionTable">
+                    <thead><tr id="tableHeader"></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <p style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 12px;">
+                💡 Tap cells to toggle manual overrides (✔ / x)
+            </p>
+        </div>
+
+        <div id="tab-LOG" class="hidden">
+            <div id="logContainer"></div>
+        </div>
+
+        <div id="tab-NEW" class="hidden">
+            <div class="card">
+                <div class="form-group">
+                    <label>Suggester</label>
+                    <div id="suggesterOptions" class="select-grid"></div>
+                </div>
+                <div id="inquirySection">
+                    <div class="form-group">
+                        <label>Suggestion Cards</label>
+                        <div style="display:flex; flex-direction: column; gap: 10px;">
+                            <select id="selSuspect" class="dropdown" onchange="window.updateFormSelection()"></select>
+                            <select id="selWeapon" class="dropdown" onchange="window.updateFormSelection()"></select>
+                            <select id="selRoom" class="dropdown" onchange="window.updateFormSelection()"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Outcome</label>
+                        <div id="showerOptions" class="select-grid"></div>
+                    </div>
+                    <div id="specificCardSection" class="form-group hidden">
+                        <label>Which card was revealed to you?</label>
+                        <div id="shownCardOptions" class="select-grid"></div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Result</button>
+                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: #e2e8f0; color: #475569;">Pass Turn</button>
+                </div>
+                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: #cbd5e1; color: #1e293b; margin-top: 10px;">Cancel Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="syncIndicator">
+    <div class="syncing-dot"></div>
+    <span id="syncText">Syncing...</span>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Configuration Handling ---
+    const rawConfig = typeof window.__firebase_config !== 'undefined' ? window.__firebase_config : null;
+    let firebaseConfig = {};
+    try { firebaseConfig = rawConfig ? JSON.parse(rawConfig) : {}; } catch (e) {}
+    
+    const app = Object.keys(firebaseConfig).length ? initializeApp(firebaseConfig) : null;
+    const auth = app ? getAuth(app) : null;
+    const db = app ? getFirestore(app) : null;
+    const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'clue-solver-v6';
+
+    // --- State Variables ---
+    let currentUser = null;
+    let players = []; 
+    let myCards = []; 
+    let suggestions = []; 
+    let manualOverrides = {}; 
+    let gameDeductionMatrix = {}; 
+    let gameState = 'SETUP';
+    let currentTurnIdx = 0;
+    let isInitialLoad = true;
+    let theme = 'light';
+    let tempSugg = { suggesterId: null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
+    let editingIndex = null;
+
+    const CATEGORIES = {
+        SUSPECTS: ['Miss Scarlett', 'Colonel Mustard', 'Dr. Orchid', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum'],
+        WEAPONS: ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'],
+        ROOMS: ['Kitchen', 'Ballroom', 'Conservatory', 'Billiard Room', 'Library', 'Study', 'Hall', 'Lounge', 'Dining Room']
+    };
+    const ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
+
+    // --- Global Interface Functions ---
+    window.toggleTheme = () => {
+        theme = theme === 'light' ? 'dark' : 'light';
+        document.body.classList.toggle('dark-mode', theme === 'dark');
+        triggerSave();
+    };
+
+    window.setSuggVal = (k, v) => { 
+        tempSugg[k] = v; 
+        if (k === 'showerId') tempSugg.cardShown = '';
+        window.updateFormSelection(); 
+    };
+    
+    window.syncSetupToState = () => {
+        const rows = document.querySelectorAll('.player-input-row');
+        players = Array.from(rows).map(r => ({
+            id: String(r.dataset.playerId),
+            name: r.querySelector('input[type="text"]').value,
+            cardCount: parseInt(r.querySelector('input[type="number"]').value) || 6
+        }));
+        triggerSave();
+    };
+
+    window.addPlayerInput = (n='', c=6, existingId=null) => {
+        const cont = document.getElementById('playerInputsContainer');
+        if (!cont) return;
+        const id = existingId !== null ? String(existingId) : String(Date.now() + Math.random());
+        const div = document.createElement('div');
+        div.className = 'player-input-row';
+        div.dataset.playerId = id;
+        div.innerHTML = `
+            <div class="player-badge">#</div>
+            <input type="text" placeholder="Name" value="${n||'Player'}" oninput="window.syncSetupToState()">
+            <input type="number" value="${c}" min="1" oninput="window.syncSetupToState()">
+            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();" title="Remove Player">×</button>
+        `;
+        cont.appendChild(div);
+        if (existingId === null) window.syncSetupToState();
+    };
+
+    window.startGame = () => {
+        window.syncSetupToState();
+        if (players.length < 2) return alert("Add at least 2 players.");
+        gameState = 'PLAYING'; 
+        currentTurnIdx = 0;
+        triggerSave(); 
+        render();
+    };
+
+    window.switchTab = (t) => {
+        ['BOARD', 'LOG', 'NEW'].forEach(id => {
+            const el = document.getElementById('tab-' + id);
+            if (el) el.classList.toggle('hidden', id !== t);
+        });
+        ['tabBtnBoard', 'tabBtnLog', 'tabBtnNew'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('active', id.includes(t.charAt(0) + t.slice(1).toLowerCase()));
+        });
+        if (t === 'NEW' && editingIndex === null) {
+            const selSus = document.getElementById('selSuspect');
+            if (selSus && !selSus.innerHTML) {
+                selSus.innerHTML = CATEGORIES.SUSPECTS.map(i => `<option value="${i}">${i}</option>`).join('');
+                document.getElementById('selWeapon').innerHTML = CATEGORIES.WEAPONS.map(i => `<option value="${i}">${i}</option>`).join('');
+                document.getElementById('selRoom').innerHTML = CATEGORIES.ROOMS.map(i => `<option value="${i}">${i}</option>`).join('');
+            }
+            tempSugg.suggesterId = players[currentTurnIdx]?.id || null;
+            if (currentTurnIdx === 0) {
+                const rec = getRecommendation();
+                if (!rec.allFound) {
+                    document.getElementById('selSuspect').value = rec.suspect;
+                    document.getElementById('selWeapon').value = rec.weapon;
+                    document.getElementById('selRoom').value = rec.room;
+                }
+            }
+            window.updateFormSelection();
+        }
+    };
+
+    window.adjustTurn = (delta) => {
+        currentTurnIdx = (currentTurnIdx + delta + players.length) % players.length;
+        render();
+        triggerSave();
+    };
+
+    window.toggleManualOverride = (cardName, playerId) => {
+        if (!manualOverrides[cardName]) manualOverrides[cardName] = {};
+        const current = manualOverrides[cardName][playerId] || 0;
+        let next = current === 0 ? 1 : (current === 1 ? -1 : 0);
+        if (next === 0) delete manualOverrides[cardName][playerId];
+        else manualOverrides[cardName][playerId] = next;
+        triggerSave();
+        render();
+    };
+
+    window.submitSuggestion = () => {
+        const s = {
+            ...tempSugg, 
+            type: 'SUGGESTION',
+            suspect: document.getElementById('selSuspect').value, 
+            weapon: document.getElementById('selWeapon').value, 
+            room: document.getElementById('selRoom').value
+        };
+        if (editingIndex !== null) { 
+            suggestions[editingIndex] = s; 
+            editingIndex = null; 
+        } else { 
+            suggestions.push(s); 
+            currentTurnIdx = (currentTurnIdx + 1) % players.length; 
+        }
+        triggerSave(); render(); window.switchTab('BOARD');
+        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerText = 'Log Result';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+    };
+
+    window.skipTurn = () => {
+        const s = { type: 'SKIP', suggesterId: players[currentTurnIdx].id, timestamp: Date.now() };
+        suggestions.push(s);
+        currentTurnIdx = (currentTurnIdx + 1) % players.length;
+        triggerSave(); render(); window.switchTab('BOARD');
+    };
+
+    window.editSuggestion = (index) => {
+        editingIndex = index;
+        const s = suggestions[index];
+        tempSugg = { ...s };
+        window.switchTab('NEW');
+        if (s.type === 'SUGGESTION') {
+            document.getElementById('selSuspect').value = s.suspect;
+            document.getElementById('selWeapon').value = s.weapon;
+            document.getElementById('selRoom').value = s.room;
+        }
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerText = 'Update';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
+        window.updateFormSelection();
+    };
+
+    window.cancelEdit = () => {
+        editingIndex = null;
+        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerText = 'Log Result';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
+        window.switchTab('LOG');
+    };
+
+    window.deleteSuggestion = (index) => {
+        if (confirm('Delete this log?')) { suggestions.splice(index, 1); triggerSave(); render(); }
+    };
+
+    window.updatePlayerName = (id, v) => { 
+        const p = players.find(x => String(x.id) === String(id));
+        if (p) p.name = v; 
+        triggerSave(); 
+    };
+
+    window.resetGame = () => { 
+        if (confirm('Reset everything?')) { 
+            players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
+            const cont = document.getElementById('playerInputsContainer');
+            if (cont) cont.innerHTML = ''; 
+            triggerSave(); render(); 
+        } 
+    };
+
+    window.updateFormSelection = () => {
+        const suggEl = document.getElementById('suggesterOptions');
+        if (suggEl) suggEl.innerHTML = players.map(p => `<button class="btn-option ${String(tempSugg.suggesterId) === String(p.id) ? 'active' : ''}" onclick="window.setSuggVal('suggesterId', '${p.id}')">${p.name}</button>`).join('');
+        const showEl = document.getElementById('showerOptions');
+        if (showEl) {
+            let html = `<button class="btn-option ${tempSugg.showerId === -1 ? 'active' : ''}" onclick="window.setSuggVal('showerId', -1)">No One</button>`;
+            players.forEach(p => {
+                if (String(p.id) !== String(tempSugg.suggesterId)) {
+                    html += `<button class="btn-option ${String(tempSugg.showerId) === String(p.id) ? 'active' : ''}" onclick="window.setSuggVal('showerId', '${p.id}')">${p.name}</button>`;
+                }
+            });
+            showEl.innerHTML = html;
+        }
+        const spec = document.getElementById('specificCardSection');
+        if (spec) {
+            if (tempSugg.showerId !== -1) {
+                spec.classList.remove('hidden');
+                const cards = [document.getElementById('selSuspect')?.value, document.getElementById('selWeapon')?.value, document.getElementById('selRoom')?.value].filter(Boolean);
+                const optionsEl = document.getElementById('shownCardOptions');
+                if (optionsEl) optionsEl.innerHTML = `<button class="btn-option ${tempSugg.cardShown === '' ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '')">Unknown</button>` +
+                        cards.map(c => `<button class="btn-option ${tempSugg.cardShown === c ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '${c}')">${c}</button>`).join('');
+            } else { spec.classList.add('hidden'); tempSugg.cardShown = ''; }
+        }
+    };
+
+    // --- Sync Logic ---
+    async function saveState() {
+        if (!currentUser || !db) return;
+        document.getElementById('syncIndicator').classList.add('syncing');
+        try {
+            await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'settings', 'gameState'), {
+                players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, theme, lastUpdated: Date.now()
+            });
+            const text = document.getElementById('syncText');
+            if (text) text.innerText = 'Synced';
+            document.getElementById('syncIndicator').classList.remove('syncing');
+        } catch (e) { 
+            const text = document.getElementById('syncText');
+            if (text) text.innerText = 'Offline'; 
+        }
+    }
+
+    let saveTimeout;
+    function triggerSave() { if (!isInitialLoad) { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveState, 1500); } }
+
+    function calculateDeductions() {
+        if (!players || players.length === 0) return;
+        
+        ALL_CARDS.forEach(card => {
+            gameDeductionMatrix[card] = {};
+            players.forEach(p => {
+                const isMe = players[0].id === p.id;
+                const hasInHand = myCards.includes(card);
+                const manual = manualOverrides[card]?.[p.id] || 0;
+                if (manual !== 0) gameDeductionMatrix[card][p.id] = manual;
+                else if (isMe) gameDeductionMatrix[card][p.id] = hasInHand ? 1 : -1;
+                else gameDeductionMatrix[card][p.id] = hasInHand ? -1 : 0;
+            });
+        });
+
+        const processSuggestion = (s) => {
+            const suggCards = [s.suspect, s.weapon, s.room];
+            const suggIdx = players.findIndex(p => String(p.id) === String(s.suggesterId));
+            const showerIdx = s.showerId === -1 ? -1 : players.findIndex(p => String(p.id) === String(s.showerId));
+            if (suggIdx === -1) return false;
+            let currChanged = false;
+            let currIdx = (suggIdx + 1) % players.length;
+            const endIdx = s.showerId === -1 ? suggIdx : showerIdx;
+            while (currIdx !== endIdx) {
+                const skippedId = players[currIdx].id;
+                suggCards.forEach(c => { if (gameDeductionMatrix[c][skippedId] !== -1) { gameDeductionMatrix[c][skippedId] = -1; currChanged = true; } });
+                currIdx = (currIdx + 1) % players.length;
+            }
+            if (s.cardShown && s.showerId !== -1) { if (gameDeductionMatrix[s.cardShown][s.showerId] !== 1) { gameDeductionMatrix[s.cardShown][s.showerId] = 1; currChanged = true; } }
+            return currChanged;
+        };
+
+        let changed = true;
+        let limit = 50;
+        while (changed && limit-- > 0) {
+            changed = false;
+            Object.keys(manualOverrides).forEach(card => {
+                Object.keys(manualOverrides[card]).forEach(pId => {
+                    if (gameDeductionMatrix[card][pId] !== manualOverrides[card][pId]) { gameDeductionMatrix[card][pId] = manualOverrides[card][pId]; changed = true; }
+                });
+            });
+            suggestions.filter(s => s.type === 'SUGGESTION').forEach(s => { if (processSuggestion(s)) changed = true; });
+            suggestions.filter(s => s.type === 'SUGGESTION' && s.showerId !== -1 && !s.cardShown).forEach(s => {
+                const cards = [s.suspect, s.weapon, s.room];
+                const unknowns = cards.filter(c => gameDeductionMatrix[c][s.showerId] === 0);
+                const hasOne = cards.some(c => gameDeductionMatrix[c][s.showerId] === 1);
+                if (!hasOne && unknowns.length === 1) { gameDeductionMatrix[unknowns[0]][s.showerId] = 1; changed = true; }
+            });
+            ALL_CARDS.forEach(card => {
+                const owner = players.find(p => gameDeductionMatrix[card][p.id] === 1);
+                if (owner) { players.forEach(p => { if (p.id !== owner.id && gameDeductionMatrix[card][p.id] !== -1) { gameDeductionMatrix[card][p.id] = -1; changed = true; } }); }
+            });
+            Object.entries(CATEGORIES).forEach(([catKey, items]) => {
+                const confirmedWithPlayers = items.filter(card => players.some(p => gameDeductionMatrix[card][p.id] === 1));
+                if (confirmedWithPlayers.length === items.length - 1) {
+                    const sol = items.find(card => !players.some(p => gameDeductionMatrix[card][p.id] === 1));
+                    if (sol) players.forEach(p => { if (gameDeductionMatrix[sol][p.id] !== -1) { gameDeductionMatrix[sol][p.id] = -1; changed = true; } });
+                }
+                const solutionFound = items.find(card => players.every(p => gameDeductionMatrix[card][p.id] === -1));
+                if (!solutionFound) {
+                    const potential = items.filter(card => !players.some(p => gameDeductionMatrix[card][p.id] === 1));
+                    if (potential.length === 1) { players.forEach(p => { if (gameDeductionMatrix[potential[0]][p.id] !== -1) { gameDeductionMatrix[potential[0]][p.id] = -1; changed = true; } }); }
+                }
+            });
+            players.forEach(p => {
+                const confirmed = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1);
+                const potential = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] !== -1);
+                if (p.cardCount > 0 && confirmed.length === p.cardCount) { ALL_CARDS.forEach(c => { if (gameDeductionMatrix[c][p.id] === 0) { gameDeductionMatrix[c][p.id] = -1; changed = true; } }); }
+                else if (p.cardCount > 0 && potential.length === p.cardCount) { potential.forEach(c => { if (gameDeductionMatrix[c][p.id] === 0) { gameDeductionMatrix[c][p.id] = 1; changed = true; } }); }
+            });
+        }
+    }
+
+    function getRecommendation() {
+        if (!players || players.length === 0) return { allFound: false };
+        const findBest = (list) => {
+            let best = list[0], maxU = -1;
+            list.forEach(card => {
+                if (myCards.includes(card)) return;
+                let uCount = players.filter((p, i) => i !== 0 && gameDeductionMatrix[card][p.id] === 0).length;
+                if (uCount > maxU) { maxU = uCount; best = card; }
+            });
+            return best;
+        };
+        const findSol = (list) => list.find(card => players.every(p => gameDeductionMatrix[card][p.id] === -1));
+        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
+        return { suspect: sol.suspect || findBest(CATEGORIES.SUSPECTS), weapon: sol.weapon || findBest(CATEGORIES.WEAPONS), room: sol.room || findBest(CATEGORIES.ROOMS), allFound: !!(sol.suspect && sol.weapon && sol.room) };
+    }
+
+    function render() {
+        if (gameState === 'SETUP') {
+            document.getElementById('setupView')?.classList.remove('hidden');
+            document.getElementById('playView')?.classList.add('hidden');
+            renderSetup();
+        } else {
+            document.getElementById('setupView')?.classList.add('hidden');
+            document.getElementById('playView')?.classList.remove('hidden');
+            calculateDeductions();
+            const turnNameEl = document.getElementById('currentTurnNameDisplay');
+            if (turnNameEl) turnNameEl.innerText = players[currentTurnIdx]?.name || 'Unknown';
+            const dotEl = document.getElementById('turnStatusDot');
+            if (dotEl) dotEl.style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
+            renderBoard();
+            renderLog();
+        }
+    }
+
+    function renderSetup() {
+        const grid = document.getElementById('setupCardsGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        Object.entries(CATEGORIES).forEach(([cat, items]) => {
+            const h3 = document.createElement('h3');
+            h3.style.cssText = 'width:100%; font-size:9px; margin-top:12px; color:var(--text-muted);';
+            h3.innerText = cat;
+            grid.appendChild(h3);
+            items.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = `card-pill ${myCards.includes(item) ? 'selected' : ''}`;
+                btn.innerText = item;
+                btn.onclick = () => { myCards = myCards.includes(item) ? myCards.filter(c => c !== item) : [...myCards, item]; triggerSave(); renderSetup(); };
+                grid.appendChild(btn);
+            });
+        });
+        const pContainer = document.getElementById('playerInputsContainer');
+        if (pContainer && pContainer.children.length === 0) {
+            if (players.length) players.forEach(p => window.addPlayerInput(p.name, p.cardCount, p.id));
+            else { window.addPlayerInput('Me', 6); window.addPlayerInput('Player 2', 6); window.addPlayerInput('Player 3', 6); }
+        }
+    }
+
+    function renderBoard() {
+        if (!players || players.length === 0) return;
+        const findSol = (list) => list.find(card => players.every(p => gameDeductionMatrix[card][p.id] === -1));
+        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
+        const rec = getRecommendation();
+        const isMyTurn = currentTurnIdx === 0;
+        const recBox = document.getElementById('recommendationBox');
+        const recHeader = document.getElementById('recommendationHeader');
+        const recText = document.getElementById('recommendationText');
+        if (recBox) recBox.classList.toggle('my-turn', isMyTurn);
+        if (recHeader) recHeader.innerText = isMyTurn ? "Your Recommended Inquiry" : "Inquiry Strategy";
+        if (recText) recText.innerHTML = rec.allFound ? `<span class="sugg-chip" style="background:#dcfce7; color:#166534;">CASE SOLVED!</span>` :
+                `<span class="sugg-chip">${rec.suspect}</span> <span class="sugg-chip">${rec.weapon}</span> <span class="sugg-chip">${rec.room}</span>`;
+
+        const banner = document.getElementById('solutionBanner');
+        if (banner) banner.innerHTML = ['suspect', 'weapon', 'room'].map(key => `<div class="solution-card ${sol[key] ? 'found' : ''}"><div class="solution-label">${key}</div><div class="solution-value">${sol[key] || '?'}</div></div>`).join('');
+
+        const header = document.getElementById('tableHeader');
+        if (header) header.innerHTML = '<th>Card</th>' + players.map(p => {
+                const confirmedCount = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1).length;
+                return `<th><div class="header-cell-content"><input type="text" class="header-edit" value="${p.name}" oninput="window.updatePlayerName('${p.id}', this.value)"><div class="card-count-indicator">${confirmedCount}/${p.cardCount}</div></div></th>`;
+            }).join('');
+
+        const tbody = document.getElementById('tableBody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            Object.entries(CATEGORIES).forEach(([cat, items]) => {
+                tbody.innerHTML += `<tr class="category-row"><td colspan="${players.length + 1}">${cat}</td></tr>`;
+                items.forEach(item => {
+                    const isSol = Object.values(sol).includes(item);
+                    const isRecommended = isMyTurn && [rec.suspect, rec.weapon, rec.room].includes(item);
+                    let html = `<tr class="${isSol ? 'row-found' : ''} ${isRecommended ? 'row-recommended' : ''}"><td>${item}</td>`;
+                    players.forEach(p => {
+                        const s = gameDeductionMatrix[item][p.id];
+                        const man = manualOverrides[item]?.[p.id];
+                        const manCls = man === 1 ? 'manual-yes' : man === -1 ? 'manual-no' : '';
+                        html += `<td class="deduction-cell ${manCls}" onclick="window.toggleManualOverride('${item}', '${p.id}')">
+                            <div class="${s === 1 ? 'cell-yes' : s === -1 ? 'cell-no' : 'cell-unknown'}">${s === 1 ? '✔' : s === -1 ? 'x' : '?'}</div>
+                        </td>`;
+                    });
+                    html += `</tr>`; tbody.innerHTML += html;
+                });
+            });
+        }
+    }
+
+    function renderLog() {
+        const container = document.getElementById('logContainer');
+        if (container) container.innerHTML = suggestions.length ? suggestions.map((s, idx) => ({ s, idx })).reverse().map(({ s, idx }) => {
+            const suggester = players.find(p => String(p.id) === String(s.suggesterId))?.name || 'Someone';
+            if (s.type === 'SKIP') return `<div class="log-item"><div class="log-main"><div class="log-who">${suggester} passed turn</div></div><div class="log-actions"><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
+            const shower = s.showerId === -1 ? 'No one' : players.find(p => String(p.id) === String(s.showerId))?.name || 'Someone';
+            return `<div class="log-item"><div class="log-main"><div class="log-who">${suggester} asked:</div><div class="log-cards"><span class="log-badge">${s.suspect}</span><span class="log-badge">${s.weapon}</span><span class="log-badge">${s.room}</span></div></div><div class="log-actions"><div class="log-result">${shower} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div><button class="btn-icon-action" onclick="window.editSuggestion(${idx})">Edit</button><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
+        }).join('') : `<p style="text-align:center; color:var(--text-muted); padding:20px;">No suggestions logged.</p>`;
+    }
+
+    async function initAuth() {
+        if (!auth) return;
+        const rawToken = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
+        if (rawToken) try { await signInWithCustomToken(auth, rawToken); } catch (e) { await signInAnonymously(auth); }
+        else await signInAnonymously(auth);
+    }
+
+    if (auth) {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                try {
+                    const snapshot = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'gameState'));
+                    if (snapshot.exists()) { 
+                        const d = snapshot.data(); 
+                        players = d.players || []; myCards = d.myCards || []; suggestions = d.suggestions || []; manualOverrides = d.manualOverrides || {}; gameState = d.gameState || 'SETUP'; currentTurnIdx = d.currentTurnIdx || 0; theme = d.theme || 'light';
+                        document.body.classList.toggle('dark-mode', theme === 'dark');
+                    }
+                } catch (e) {}
+                isInitialLoad = false; render();
+                const text = document.getElementById('syncText');
+                if (text) text.innerText = 'Synced';
+            } else {
+                initAuth();
+            }
+        });
+    } else {
+        isInitialLoad = false; render();
+        const indicator = document.getElementById('syncIndicator');
+        if (indicator) indicator.classList.add('hidden');
+    }
+</script>
+</body>
+</html>
