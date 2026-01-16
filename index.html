@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clue Solver - Mobile Pro</title>
+    <title>Clue Solver - Local Storage Pro</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -370,26 +370,11 @@
 
 <div id="syncIndicator">
     <div class="syncing-dot"></div>
-    <span id="syncText">Syncing...</span>
+    <span id="syncText">Saved</span>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // --- Configuration Handling ---
-    const rawConfig = typeof window.__firebase_config !== 'undefined' ? window.__firebase_config : null;
-    let firebaseConfig = {};
-    try { firebaseConfig = rawConfig ? JSON.parse(rawConfig) : {}; } catch (e) {}
-    
-    const app = Object.keys(firebaseConfig).length ? initializeApp(firebaseConfig) : null;
-    const auth = app ? getAuth(app) : null;
-    const db = app ? getFirestore(app) : null;
-    const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'clue-solver-v6';
-
     // --- State Variables ---
-    let currentUser = null;
     let players = []; 
     let myCards = []; 
     let suggestions = []; 
@@ -402,12 +387,64 @@
     let tempSugg = { suggesterId: null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
     let editingIndex = null;
 
+    const STORAGE_KEY = 'clue_solver_data_v1';
+
     const CATEGORIES = {
         SUSPECTS: ['Miss Scarlett', 'Colonel Mustard', 'Dr. Orchid', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum'],
         WEAPONS: ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'],
         ROOMS: ['Kitchen', 'Ballroom', 'Conservatory', 'Billiard Room', 'Library', 'Study', 'Hall', 'Lounge', 'Dining Room']
     };
     const ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
+
+    // --- Persistence Logic ---
+    function saveState() {
+        const data = {
+            players, 
+            myCards, 
+            suggestions, 
+            manualOverrides, 
+            gameState, 
+            currentTurnIdx, 
+            theme,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        
+        const indicator = document.getElementById('syncIndicator');
+        if (indicator) {
+            indicator.classList.add('syncing');
+            setTimeout(() => indicator.classList.remove('syncing'), 500);
+        }
+    }
+
+    function loadState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            try {
+                const d = JSON.parse(raw);
+                players = d.players || [];
+                myCards = d.myCards || [];
+                suggestions = d.suggestions || [];
+                manualOverrides = d.manualOverrides || {};
+                gameState = d.gameState || 'SETUP';
+                currentTurnIdx = d.currentTurnIdx || 0;
+                theme = d.theme || 'light';
+                
+                document.body.classList.toggle('dark-mode', theme === 'dark');
+            } catch (e) {
+                console.error("Failed to load state", e);
+            }
+        }
+        isInitialLoad = false;
+        render();
+    }
+
+    let saveTimeout;
+    function triggerSave() { 
+        if (isInitialLoad) return;
+        clearTimeout(saveTimeout); 
+        saveTimeout = setTimeout(saveState, 500); 
+    }
 
     // --- Global Interface Functions ---
     window.toggleTheme = () => {
@@ -575,7 +612,8 @@
             players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
             const cont = document.getElementById('playerInputsContainer');
             if (cont) cont.innerHTML = ''; 
-            triggerSave(); render(); 
+            localStorage.removeItem(STORAGE_KEY);
+            render(); 
         } 
     };
 
@@ -604,26 +642,7 @@
         }
     };
 
-    // --- Sync Logic ---
-    async function saveState() {
-        if (!currentUser || !db) return;
-        document.getElementById('syncIndicator').classList.add('syncing');
-        try {
-            await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'settings', 'gameState'), {
-                players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, theme, lastUpdated: Date.now()
-            });
-            const text = document.getElementById('syncText');
-            if (text) text.innerText = 'Synced';
-            document.getElementById('syncIndicator').classList.remove('syncing');
-        } catch (e) { 
-            const text = document.getElementById('syncText');
-            if (text) text.innerText = 'Offline'; 
-        }
-    }
-
-    let saveTimeout;
-    function triggerSave() { if (!isInitialLoad) { clearTimeout(saveTimeout); saveTimeout = setTimeout(saveState, 1500); } }
-
+    // --- Deduction Logic ---
     function calculateDeductions() {
         if (!players || players.length === 0) return;
         
@@ -713,6 +732,7 @@
         return { suspect: sol.suspect || findBest(CATEGORIES.SUSPECTS), weapon: sol.weapon || findBest(CATEGORIES.WEAPONS), room: sol.room || findBest(CATEGORIES.ROOMS), allFound: !!(sol.suspect && sol.weapon && sol.room) };
     }
 
+    // --- UI Rendering ---
     function render() {
         if (gameState === 'SETUP') {
             document.getElementById('setupView')?.classList.remove('hidden');
@@ -811,37 +831,9 @@
         }).join('') : `<p style="text-align:center; color:var(--text-muted); padding:20px;">No suggestions logged.</p>`;
     }
 
-    async function initAuth() {
-        if (!auth) return;
-        const rawToken = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
-        if (rawToken) try { await signInWithCustomToken(auth, rawToken); } catch (e) { await signInAnonymously(auth); }
-        else await signInAnonymously(auth);
-    }
+    // --- Boot ---
+    window.onload = loadState;
 
-    if (auth) {
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                try {
-                    const snapshot = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'gameState'));
-                    if (snapshot.exists()) { 
-                        const d = snapshot.data(); 
-                        players = d.players || []; myCards = d.myCards || []; suggestions = d.suggestions || []; manualOverrides = d.manualOverrides || {}; gameState = d.gameState || 'SETUP'; currentTurnIdx = d.currentTurnIdx || 0; theme = d.theme || 'light';
-                        document.body.classList.toggle('dark-mode', theme === 'dark');
-                    }
-                } catch (e) {}
-                isInitialLoad = false; render();
-                const text = document.getElementById('syncText');
-                if (text) text.innerText = 'Synced';
-            } else {
-                initAuth();
-            }
-        });
-    } else {
-        isInitialLoad = false; render();
-        const indicator = document.getElementById('syncIndicator');
-        if (indicator) indicator.classList.add('hidden');
-    }
 </script>
 </body>
 </html>
