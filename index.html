@@ -6,6 +6,8 @@
     <title>Clue Solver - Glassmorphism Edition</title>
     <!-- Google Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -39,18 +41,41 @@
             --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
+        /* SweetAlert2 Glass Integration */
+        .swal2-popup {
+            background: var(--card-bg) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius) !important;
+            color: var(--text-main) !important;
+        }
+        .swal2-title, .swal2-html-container {
+            color: var(--text-main) !important;
+        }
+
         /* Enhanced Animated Background */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2;
-            background: linear-gradient(125deg, #e0e7ff 0%, #f1f5f9 50%, #fdf4ff 100%);
-            transition: background 0.4s ease;
+            background: linear-gradient(-45deg, #e0e7ff, #f1f5f9, #fdf4ff, #e0e7ff);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            transition: opacity 0.4s ease;
         }
 
         body.dark-mode::before {
-            background: linear-gradient(125deg, #020617 0%, #0f172a 50%, #1e1b4b 100%);
+            background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #020617);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
         }
 
         /* Floating Blobs for Glass Depth */
@@ -69,7 +94,7 @@
             background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
             filter: blur(40px);
             border-radius: 50%;
-            animation: float 25s infinite alternate ease-in-out;
+            animation: float 25s infinite alternate ease-in-out, colorShift 30s infinite linear;
         }
 
         .blob-1 { top: -10%; left: -10%; background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%); }
@@ -79,6 +104,11 @@
         @keyframes float {
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(20vw, 20vh) scale(1.2); }
+        }
+
+        @keyframes colorShift {
+            0% { filter: blur(40px) hue-rotate(0deg); }
+            100% { filter: blur(40px) hue-rotate(360deg); }
         }
 
         @keyframes fadeInUp {
@@ -223,7 +253,7 @@
 
         @media (max-width: 640px) {
             #tabBtnNew { display: none !important; }
-            .fab { display: flex !important; }
+            .fab { display: flex; }
         }
 
         /* Assistant */
@@ -354,7 +384,7 @@
                 <span class="material-icons">brightness_medium</span>
             </button>
             <h1>CLUE SOLVER</h1>
-            <p>Glassmorphism Assistant</p>
+            <p>The ultimate clue game assistant</p>
         </header>
         <div class="card">
             <div class="form-section">
@@ -584,7 +614,15 @@
 
     window.startGame = () => {
         window.syncSetupToState();
-        if (players.length < 2) return alert("Add at least 2 players.");
+        if (players.length < 2) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Not enough players',
+                text: 'Please add at least 2 players to start.',
+                confirmButtonColor: 'var(--primary)'
+            });
+            return;
+        }
         gameState = 'PLAYING'; currentTurnIdx = 0; triggerSave(); render();
     };
 
@@ -606,10 +644,13 @@
             if (el) el.classList.toggle('active', id.includes(t.charAt(0) + t.slice(1).toLowerCase()));
         });
         
+        // Handle FAB visibility logic
         const fab = document.getElementById('mobileFab');
         if (fab) {
-            fab.style.transform = (t === 'NEW' || gameState === 'SETUP') ? 'scale(0)' : 'scale(1)';
-            fab.style.pointerEvents = (t === 'NEW' || gameState === 'SETUP') ? 'none' : 'auto';
+            // Hide FAB if on setup OR if on the NEW tab itself
+            const shouldBeHidden = (gameState === 'SETUP' || t === 'NEW');
+            fab.style.transform = shouldBeHidden ? 'scale(0)' : 'scale(1)';
+            fab.style.pointerEvents = shouldBeHidden ? 'none' : 'auto';
         }
 
         if (t === 'NEW' && editingIndex === null) {
@@ -675,7 +716,21 @@
     };
 
     window.deleteSuggestion = (index) => {
-        if (confirm('Delete log?')) { suggestions.splice(index, 1); triggerSave(); render(); }
+        Swal.fire({
+            title: 'Delete log?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--danger)',
+            cancelButtonColor: 'var(--text-muted)',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                suggestions.splice(index, 1);
+                triggerSave();
+                render();
+            }
+        });
     };
 
     window.updatePlayerName = (id, v) => { 
@@ -684,10 +739,23 @@
     };
 
     window.resetGame = () => { 
-        if (confirm('Reset session?')) { 
-            players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
-            localStorage.removeItem(STORAGE_KEY); render(); 
-        } 
+        Swal.fire({
+            title: 'Reset entire session?',
+            text: "All progress and history will be cleared.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--danger)',
+            cancelButtonColor: 'var(--text-muted)',
+            confirmButtonText: 'Yes, reset it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
+                const cont = document.getElementById('playerInputsContainer');
+                if (cont) cont.innerHTML = ''; 
+                localStorage.removeItem(STORAGE_KEY);
+                render();
+            }
+        });
     };
 
     window.updateFormSelection = () => {
@@ -789,15 +857,24 @@
     // --- UI Render ---
     function render() {
         const fab = document.getElementById('mobileFab');
-        if (fab) fab.style.display = (gameState === 'SETUP') ? 'none' : 'flex';
+        const setupView = document.getElementById('setupView');
+        const playView = document.getElementById('playView');
 
         if (gameState === 'SETUP') {
-            document.getElementById('setupView').classList.remove('hidden');
-            document.getElementById('playView').classList.add('hidden');
+            if (setupView) setupView.classList.remove('hidden');
+            if (playView) playView.classList.add('hidden');
+            if (fab) fab.style.display = 'none';
             renderSetup();
         } else {
-            document.getElementById('setupView').classList.add('hidden');
-            document.getElementById('playView').classList.remove('hidden');
+            if (setupView) setupView.classList.add('hidden');
+            if (playView) playView.classList.remove('hidden');
+            if (fab) {
+                // Ensure FAB display is controlled by switchTab, but initial state after setup needs fixing here:
+                const tabs = ['BOARD', 'LOG', 'NEW'];
+                const activeTabEl = document.querySelector('.nav-tabs .tab-btn.active');
+                const t = activeTabEl ? activeTabEl.innerText.trim() : 'ANALYSIS';
+                fab.style.display = (t === 'ASK' || t === '+ ASK') ? 'none' : 'flex';
+            }
             calculateDeductions();
             document.getElementById('currentTurnNameDisplay').innerText = players[currentTurnIdx]?.name || 'Unknown';
             document.getElementById('turnStatusDot').style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
