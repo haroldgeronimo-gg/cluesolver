@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Clue Solver - Premium Mobile Edition</title>
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -17,10 +19,10 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --radius: 20px;
-            --radius-sm: 12px;
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
-            --header-bg: rgba(248, 250, 252, 0.8);
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --radius-sm: 10px;
+            --safe-bottom: env(safe-area-inset-bottom, 16px);
+            --header-bg: rgba(248, 250, 252, 0.85);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
         }
 
         body.dark-mode {
@@ -29,17 +31,17 @@
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
             --border: #1e293b;
-            --header-bg: rgba(2, 6, 23, 0.8);
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --header-bg: rgba(2, 6, 23, 0.85);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
         }
 
         /* Animations */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .animate-in { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .animate-in { animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 
         * { 
             box-sizing: border-box; 
@@ -52,19 +54,19 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            line-height: 1.5;
-            padding-bottom: calc(90px + var(--safe-bottom));
-            font-size: 16px; 
+            line-height: 1.4;
+            padding-bottom: calc(70px + var(--safe-bottom));
+            font-size: 15px; 
             transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s;
         }
 
         .container { 
             max-width: 800px; 
             margin: 0 auto; 
-            padding: 12px; 
+            padding: 8px; 
         }
 
-        @media (min-width: 768px) { .container { padding: 32px; } }
+        @media (min-width: 768px) { .container { padding: 24px; } }
 
         .hidden { display: none !important; }
         
@@ -72,149 +74,183 @@
             background: var(--card-bg); 
             border-radius: var(--radius); 
             border: 1px solid var(--border); 
-            padding: 20px; 
-            margin-bottom: 16px; 
+            padding: 14px; 
+            margin-bottom: 12px; 
             box-shadow: var(--shadow); 
             transition: transform 0.2s, background-color 0.3s;
         }
 
-        h1, h2, h3 { font-weight: 800; letter-spacing: -0.04em; }
-        button { cursor: pointer; border: none; font-weight: 700; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        button:active { transform: scale(0.96); opacity: 0.9; }
+        h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; }
+        button { cursor: pointer; border: none; font-weight: 700; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: inline-flex; align-items: center; justify-content: center; }
+        button:active { transform: scale(0.97); opacity: 0.9; }
         
-        .setup-header { text-align: center; margin-bottom: 32px; padding: 10px; position: relative; }
-        .setup-header h1 { font-size: clamp(2rem, 10vw, 3rem); color: var(--text-main); background: linear-gradient(135deg, var(--primary), #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .setup-header p { color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-top: 4px; }
+        .setup-header { text-align: center; margin-bottom: 20px; padding: 5px; position: relative; }
+        .setup-header h1 { font-size: 1.75rem; color: var(--text-main); background: linear-gradient(135deg, var(--primary), #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .setup-header p { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; margin-top: 2px; }
 
         .theme-toggle-btn {
-            position: absolute; top: 10px; right: 10px;
+            position: absolute; top: 5px; right: 5px;
             background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main);
-            width: 44px; height: 44px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow);
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
         }
+        .theme-toggle-btn .material-icons { font-size: 18px; }
 
-        .form-section { margin-bottom: 32px; }
-        .form-section h2 { font-size: 1.25rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .form-section { margin-bottom: 24px; }
+        .form-section h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
         
-        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 8px; }
         @media (min-width: 640px) { .player-inputs { grid-template-columns: repeat(2, 1fr); } }
         
         .player-input-row { 
-            background: var(--bg); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-sm); 
-            display: flex; gap: 10px; align-items: center; transition: border-color 0.2s;
+            background: var(--bg); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); 
+            display: flex; gap: 8px; align-items: center;
         }
-        .player-input-row:focus-within { border-color: var(--primary); ring: 2px var(--primary); }
-        .player-input-row input[type="text"] { background: transparent; border: none; font-weight: 700; outline: none; flex: 1; min-width: 0; font-size: 16px; color: var(--text-main); }
-        .player-input-row input[type="number"] { width: 50px; border: 1px solid var(--border); border-radius: 8px; padding: 6px; font-weight: 800; text-align: center; font-size: 14px; background: var(--card-bg); color: var(--text-main); }
-        .player-badge { background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; font-weight: bold; }
+        .player-input-row input[type="text"] { background: transparent; border: none; font-weight: 700; outline: none; flex: 1; min-width: 0; font-size: 15px; color: var(--text-main); }
+        .player-input-row input[type="number"] { width: 40px; border: 1px solid var(--border); border-radius: 6px; padding: 4px; font-weight: 800; text-align: center; font-size: 13px; background: var(--card-bg); color: var(--text-main); }
+        .player-badge { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .player-badge .material-icons { font-size: 16px; }
         
-        .btn-remove-player { background: #fee2e2; color: var(--danger); width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-        body.dark-mode .btn-remove-player { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
+        .btn-remove-player { background: #fee2e2; color: var(--danger); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-remove-player .material-icons { font-size: 18px; }
+        body.dark-mode .btn-remove-player { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
 
-        .label-small { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .label-small { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
-        .card-pill { padding: 14px 10px; border-radius: 14px; background: var(--card-bg); border: 1px solid var(--border); font-size: 13px; font-weight: 700; text-align: center; color: var(--text-main); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .card-pill.selected { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3); transform: translateY(-2px); }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+        .card-pill { padding: 10px 8px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--border); font-size: 12px; font-weight: 700; text-align: center; color: var(--text-main); }
+        .card-pill.selected { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); }
 
-        .btn-start { width: 100%; padding: 18px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1.1rem; margin-top: 24px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+        .btn-start { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1rem; margin-top: 16px; }
 
         /* Navigation */
         .nav-tabs { 
-            display: flex; gap: 6px; margin-bottom: 20px; background: var(--header-bg); padding: 6px; border-radius: 18px; 
-            position: sticky; top: 12px; z-index: 100; box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+            display: flex; gap: 4px; margin-bottom: 12px; background: var(--header-bg); padding: 4px; border-radius: 14px; 
+            position: sticky; top: 8px; z-index: 100; box-shadow: 0 8px 16px -8px rgba(0,0,0,0.1);
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border);
         }
-        .tab-btn { flex: 1; padding: 12px 6px; border-radius: 14px; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 800; text-align: center; white-space: nowrap; }
-        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .tab-btn { flex: 1; padding: 10px 4px; border-radius: 10px; background: transparent; color: var(--text-muted); font-size: 12px; font-weight: 800; text-align: center; white-space: nowrap; }
+        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
         /* Assistant */
-        .assistant-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.3s; }
-        .assistant-box.my-turn { background: #eff6ff; border-color: #bfdbfe; box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.15); }
+        .assistant-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+        .assistant-box.my-turn { background: #eff6ff; border-color: #bfdbfe; }
         body.dark-mode .assistant-box { background: #451a03; border-color: #92400e; }
         body.dark-mode .assistant-box.my-turn { background: #1e3a8a; border-color: #2563eb; }
         
-        .assistant-content h4 { font-size: 11px; text-transform: uppercase; color: #b45309; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .assistant-content h4 { font-size: 9px; text-transform: uppercase; color: #b45309; letter-spacing: 0.1em; margin-bottom: 4px; }
         body.dark-mode .assistant-content h4 { color: #fcd34d; }
         body.dark-mode .assistant-box.my-turn h4 { color: #93c5fd; }
 
-        .sugg-chip { background: #fef3c7; padding: 8px 14px; border-radius: 12px; font-size: 14px; border: 1px solid #fde68a; font-weight: 800; color: #92400e; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .sugg-chip { background: #fef3c7; padding: 4px 10px; border-radius: 8px; font-size: 13px; border: 1px solid #fde68a; font-weight: 800; color: #92400e; }
         .assistant-box.my-turn .sugg-chip { background: #dbeafe; border-color: #bfdbfe; color: #1e40af; }
         body.dark-mode .sugg-chip { background: #78350f; color: #fef3c7; border-color: #92400e; }
         body.dark-mode .assistant-box.my-turn .sugg-chip { background: #1e40af; color: #dbeafe; border-color: #2563eb; }
 
-        .turn-card { background: #eef2ff; border: 1px solid #c7d2fe; padding: 16px; border-radius: var(--radius); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .turn-card { background: #eef2ff; border: 1px solid #c7d2fe; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         body.dark-mode .turn-card { background: #1e1b4b; border-color: #312e81; }
-        .turn-dot { width: 10px; height: 10px; background: var(--primary); border-radius: 50%; animation: pulse 1s infinite alternate; }
-        .turn-label { font-size: 11px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-        .turn-name { font-weight: 900; color: #1e1b4b; font-size: 1.25rem; letter-spacing: -0.03em; }
+        .turn-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        .turn-name { font-weight: 800; color: #1e1b4b; font-size: 1.1rem; }
         body.dark-mode .turn-name { color: #e0e7ff; }
 
-        .solution-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 20px; }
-        @media (min-width: 480px) { .solution-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
-        .solution-card { padding: 16px 12px; border-radius: var(--radius); border: 2px solid var(--border); background: var(--card-bg); display: flex; flex-direction: column; align-items: center; }
-        .solution-card.found { border-color: var(--success); background: #ecfdf5; transform: scale(1.02); box-shadow: 0 10px 20px -8px rgba(16, 185, 129, 0.2); }
+        .solution-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+        .solution-card { padding: 8px 4px; border-radius: 12px; border: 2px solid var(--border); background: var(--card-bg); display: flex; flex-direction: column; align-items: center; }
+        .solution-card.found { border-color: var(--success); background: #ecfdf5; transform: scale(1.02); }
         body.dark-mode .solution-card.found { background: #064e3b; border-color: var(--success); }
-        .solution-label { font-size: 10px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-        .solution-value { font-size: 1.1rem; font-weight: 900; color: var(--text-main); }
+        .solution-label { font-size: 8px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+        .solution-value { font-size: 0.9rem; font-weight: 800; color: var(--text-main); text-align: center; }
         .solution-card.found .solution-value { color: #065f46; }
         body.dark-mode .solution-card.found .solution-value { color: #34d399; }
 
-        /* Table Design */
+        /* Compact Table Design */
         .table-wrap { 
-            overflow-x: auto; background: var(--card-bg); border-radius: var(--radius); border: 1px solid var(--border); 
+            overflow-x: auto; background: var(--card-bg); border-radius: var(--radius-sm); border: 1px solid var(--border); 
             -webkit-overflow-scrolling: touch; position: relative; box-shadow: var(--shadow);
         }
         table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
-        th, td { padding: 14px 10px; border-bottom: 1px solid var(--border); font-size: 14px; min-width: 65px; color: var(--text-main); }
+        th, td { padding: 8px 6px; border-bottom: 1px solid var(--border); font-size: 13px; min-width: 55px; color: var(--text-main); }
         th:first-child, td:first-child { 
-            min-width: 140px; width: 150px; position: sticky; left: 0; background: var(--card-bg); z-index: 10;
+            min-width: 110px; width: 120px; position: sticky; left: 0; background: var(--card-bg); z-index: 10;
             border-right: 1px solid var(--border); font-weight: 700;
         }
         th:first-child { z-index: 20; background: var(--header-bg); }
-        th { background: var(--header-bg); font-weight: 800; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+        th { background: var(--header-bg); font-weight: 800; color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
 
-        .category-row { background: var(--header-bg); font-weight: 900; font-size: 10px; text-transform: uppercase; color: var(--primary); }
-        .category-row td { padding: 10px 16px; }
+        .header-cell-content { display: flex; flex-direction: column; align-items: center; }
+        .header-edit { 
+            background: transparent; border: none; font-family: inherit; font-weight: 900; color: var(--text-main); 
+            font-size: 10px; text-transform: uppercase; width: 100%; text-align: center; padding: 2px 0; outline: none;
+        }
+        .card-count-indicator { font-size: 9px; color: var(--text-muted); font-weight: 700; }
 
-        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.15s; }
-        .cell-yes { color: var(--success); text-align: center; font-weight: 900; font-size: 20px; }
-        .cell-no { color: var(--danger); text-align: center; font-weight: 800; font-size: 18px; opacity: 0.4; }
-        .cell-unknown { text-align: center; color: #cbd5e1; font-weight: 600; font-size: 18px; }
+        .category-row { background: var(--header-bg); font-weight: 900; font-size: 9px; text-transform: uppercase; color: var(--primary); }
+        .category-row td { padding: 4px 10px; }
+
+        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.1s; }
+        .cell-yes { color: var(--success); text-align: center; }
+        .cell-yes .material-icons { font-size: 20px; }
+        .cell-no { color: var(--danger); text-align: center; opacity: 0.35; }
+        .cell-no .material-icons { font-size: 16px; }
+        .cell-unknown { text-align: center; color: #cbd5e1; }
+        .cell-unknown .material-icons { font-size: 16px; }
         
-        .manual-yes { background: rgba(16, 185, 129, 0.1) !important; box-shadow: inset 0 0 0 2px var(--success); }
-        .manual-no { background: rgba(239, 68, 68, 0.1) !important; box-shadow: inset 0 0 0 2px var(--danger); }
+        .manual-yes { background: rgba(16, 185, 129, 0.08) !important; box-shadow: inset 0 0 0 1px var(--success); }
+        .manual-no { background: rgba(239, 68, 68, 0.08) !important; box-shadow: inset 0 0 0 1px var(--danger); }
 
         .row-found { background-color: #f0fdf4 !important; }
-        .row-found td:first-child { color: #059669 !important; }
+        .row-found td:first-child { color: #059669 !important; background-color: #f0fdf4 !important; }
         .row-recommended { background-color: #eff6ff !important; }
-        .row-recommended td:first-child { color: #2563eb !important; border-left: 6px solid var(--primary); }
+        .row-recommended td:first-child { color: #2563eb !important; border-left: 4px solid var(--primary); background-color: #eff6ff !important; }
 
-        /* Modals & Forms */
-        .dropdown { 
-            width: 100%; padding: 18px; border-radius: 16px; border: 1px solid var(--border); 
-            font-weight: 700; font-size: 17px; background: var(--bg); color: var(--text-main); appearance: none;
+        /* Tag-Style Form Controls */
+        .select-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .btn-option { 
+            padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); 
+            font-size: 12px; text-align: center; font-weight: 700; display: flex; align-items: center; justify-content: center; 
+            min-height: 38px; color: var(--text-muted); transition: all 0.2s; flex: 1 0 auto; max-width: calc(50% - 3px);
         }
+        @media (min-width: 480px) { .btn-option { max-width: calc(33.333% - 4px); } }
+        .btn-option.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25); }
 
+        /* Revamped Logs Tab Styling */
         .log-item { 
-            background: var(--card-bg); padding: 20px; border-radius: 22px; border: 1px solid var(--border); 
-            margin-bottom: 12px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow);
+            background: var(--card-bg); padding: 12px; border-radius: 16px; border: 1px solid var(--border); 
+            margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow);
         }
-        .log-who { font-weight: 900; font-size: 15px; color: var(--text-main); margin-bottom: 4px; }
-        .log-badge { font-size: 12px; padding: 6px 14px; background: var(--bg); border-radius: 12px; color: var(--text-muted); font-weight: 800; border: 1px solid var(--border); }
-        .log-result { font-size: 14px; color: var(--primary); font-weight: 800; background: #eef2ff; padding: 12px 18px; border-radius: 14px; flex: 1; }
-        body.dark-mode .log-result { background: #1e1b4b; color: #a5b4fc; }
+        .log-header {
+            display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 10px;
+        }
+        .log-who-wrap { display: flex; flex-direction: column; }
+        .log-who { font-weight: 800; font-size: 13px; color: var(--text-main); }
+        .log-timestamp { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        
+        .log-tag-group { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0; }
+        .log-badge { font-size: 10px; padding: 4px 10px; background: var(--bg); border-radius: 8px; color: var(--text-muted); font-weight: 800; border: 1px solid var(--border); }
+        
+        .log-result { 
+            font-size: 12px; color: var(--primary); font-weight: 800; background: #eef2ff; 
+            padding: 8px 12px; border-radius: 10px; align-self: flex-start; border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+        body.dark-mode .log-result { background: #1e1b4b; color: #a5b4fc; border-color: #312e81; }
+
+        .log-actions { display: flex; gap: 6px; }
+        .btn-log-action { 
+            width: 32px; height: 32px; border-radius: 8px; background: var(--bg); 
+            border: 1px solid var(--border); color: var(--text-muted); 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-log-action .material-icons { font-size: 18px; }
+        .btn-log-action:active { background: var(--border); }
+        .btn-log-action.delete:hover, .btn-log-action.delete:active { color: var(--danger); background: #fee2e2; border-color: #fca5a5; }
+        body.dark-mode .btn-log-action.delete:hover { background: rgba(239, 68, 68, 0.2); }
 
         #syncIndicator { 
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
-            font-size: 11px; font-weight: 900; color: var(--text-muted); background: var(--card-bg); 
-            padding: 10px 24px; border-radius: 25px; border: 1px solid var(--border); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; z-index: 1000; 
-            text-transform: uppercase; letter-spacing: 0.1em;
+            position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); 
+            font-size: 10px; font-weight: 900; color: var(--text-muted); background: var(--card-bg); 
+            padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px; z-index: 1000; 
+            text-transform: uppercase;
         }
-        .syncing-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
-        .syncing .syncing-dot { background: var(--primary); animation: pulse 0.8s infinite alternate; }
-        @keyframes pulse { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.3); } }
     </style>
 </head>
 <body class="">
@@ -223,24 +259,28 @@
     <!-- SETUP VIEW -->
     <div id="setupView" class="animate-in">
         <header class="setup-header">
-            <button class="theme-toggle-btn" onclick="window.toggleTheme()" title="Toggle Theme">🌓</button>
+            <button class="theme-toggle-btn" onclick="window.toggleTheme()" title="Toggle Theme">
+                <span class="material-icons">brightness_medium</span>
+            </button>
             <h1>CLUE SOLVER</h1>
-            <p>Strategic Deduction Assistant</p>
+            <p>Deduction Engine</p>
         </header>
         <div class="card">
             <div class="form-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <h2>Investigation Team</h2>
-                    <span class="label-small">Cards Held</span>
+                    <span class="label-small">Cards</span>
                 </div>
                 <div class="player-inputs" id="playerInputsContainer"></div>
-                <button onclick="window.addPlayerInput()" style="margin-top:20px; background:none; color:var(--primary); font-size: 15px; font-weight: 800;">+ ADD PLAYER</button>
+                <button onclick="window.addPlayerInput()" style="margin-top:16px; background:none; color:var(--primary); font-size: 14px; font-weight: 800;">
+                    <span class="material-icons" style="font-size: 16px; margin-right: 4px;">add_circle</span> ADD PLAYER
+                </button>
             </div>
             <div class="form-section">
                 <h2>Your Hand</h2>
                 <div id="setupCardsGrid" class="card-grid"></div>
             </div>
-            <button class="btn-start" onclick="window.startGame()">Initialize Solver</button>
+            <button class="btn-start" onclick="window.startGame()">Launch Investigation</button>
         </div>
     </div>
 
@@ -248,10 +288,12 @@
     <div id="playView" class="hidden">
         <div class="nav-tabs">
             <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">ANALYSIS</button>
-            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">HISTORY</button>
-            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ INQUIRY</button>
-            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 50px;">🌓</button>
-            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto;">RESET</button>
+            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">LOGS</button>
+            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ ASK</button>
+            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 40px; padding: 0;">
+                <span class="material-icons">brightness_medium</span>
+            </button>
+            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto; padding: 0 8px;">RESET</button>
         </div>
 
         <div id="tab-BOARD" class="animate-in">
@@ -263,17 +305,23 @@
                         <div class="turn-name" id="currentTurnNameDisplay">Name</div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" style="padding: 10px 15px; border-radius: 12px;">◀</button>
-                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" style="padding: 10px 15px; border-radius: 12px;">▶</button>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" title="Prev" style="padding: 8px 12px; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); height: 38px;">
+                        <span class="material-icons">chevron_left</span>
+                    </button>
+                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" title="Next" style="padding: 8px 12px; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); height: 38px;">
+                        <span class="material-icons">chevron_right</span>
+                    </button>
                 </div>
             </div>
 
             <div id="recommendationBox" class="assistant-box">
-                <div class="assistant-icon">💡</div>
+                <div class="assistant-icon">
+                    <span class="material-icons">lightbulb</span>
+                </div>
                 <div class="assistant-content">
                     <h4 id="recommendationHeader">Strategic Inquiry</h4>
-                    <div id="recommendationText" class="assistant-suggestion">Gathering intelligence...</div>
+                    <div id="recommendationText" class="assistant-suggestion">Calculating...</div>
                 </div>
             </div>
             <div class="solution-grid" id="solutionBanner"></div>
@@ -283,6 +331,9 @@
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
+            <p style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 10px;">
+                💡 Tap cells to toggle manual overrides (✔ / x)
+            </p>
         </div>
 
         <div id="tab-LOG" class="hidden">
@@ -297,28 +348,32 @@
                 </div>
                 <div id="inquirySection">
                     <div class="form-group">
-                        <label>Targeted Cards</label>
-                        <div style="display:flex; flex-direction: column; gap: 12px;">
-                            <select id="selSuspect" class="dropdown" onchange="window.updateFormSelection()"></select>
-                            <select id="selWeapon" class="dropdown" onchange="window.updateFormSelection()"></select>
-                            <select id="selRoom" class="dropdown" onchange="window.updateFormSelection()"></select>
-                        </div>
+                        <label>Suspect</label>
+                        <div id="suspectOptions" class="select-grid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Weapon</label>
+                        <div id="weaponOptions" class="select-grid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Room</label>
+                        <div id="roomOptions" class="select-grid"></div>
                     </div>
                     <div class="form-group">
                         <label>Reveal Outcome</label>
                         <div id="showerOptions" class="select-grid"></div>
                     </div>
                     <div id="specificCardSection" class="form-group hidden animate-in">
-                        <label>Specific Card Shown</label>
+                        <label>Which card was revealed to you?</label>
                         <div id="shownCardOptions" class="select-grid"></div>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Record</button>
-                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: var(--border); color: var(--text-muted);">Pass Turn</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Result</button>
+                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: var(--border); color: var(--text-muted);">Pass</button>
                 </div>
-                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: var(--bg); color: var(--text-muted); margin-top: 14px; border: 1px solid var(--border);">Abort Edit</button>
+                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: var(--bg); color: var(--text-muted); margin-top: 10px; border: 1px solid var(--border);">Abort Edit</button>
             </div>
         </div>
     </div>
@@ -326,7 +381,7 @@
 
 <div id="syncIndicator">
     <div class="syncing-dot"></div>
-    <span id="syncText">State Saved</span>
+    <span id="syncText">Saved</span>
 </div>
 
 <script type="module">
@@ -340,10 +395,18 @@
     let currentTurnIdx = 0;
     let isInitialLoad = true;
     let theme = 'light';
-    let tempSugg = { suggesterId: null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
+    let tempSugg = { 
+        suggesterId: null, 
+        suspect: '', 
+        weapon: '', 
+        room: '', 
+        showerId: -1, 
+        cardShown: '', 
+        type: 'SUGGESTION' 
+    };
     let editingIndex = null;
 
-    const STORAGE_KEY = 'clue_solver_premium_v1';
+    const STORAGE_KEY = 'clue_solver_premium_v2'; // Bumped version for revamped storage
 
     const CATEGORIES = {
         SUSPECTS: ['Miss Scarlett', 'Colonel Mustard', 'Dr. Orchid', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum'],
@@ -420,10 +483,12 @@
         div.className = 'player-input-row animate-in';
         div.dataset.playerId = id;
         div.innerHTML = `
-            <div class="player-badge">#</div>
+            <div class="player-badge"><span class="material-icons">person</span></div>
             <input type="text" placeholder="Name" value="${n||'Player'}" oninput="window.syncSetupToState()">
             <input type="number" value="${c}" min="1" oninput="window.syncSetupToState()">
-            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();">×</button>
+            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();">
+                <span class="material-icons">remove_circle</span>
+            </button>
         `;
         cont.appendChild(div);
         if (existingId === null) window.syncSetupToState();
@@ -452,21 +517,11 @@
             if (el) el.classList.toggle('active', id.includes(t.charAt(0) + t.slice(1).toLowerCase()));
         });
         if (t === 'NEW' && editingIndex === null) {
-            const selSus = document.getElementById('selSuspect');
-            if (selSus && !selSus.innerHTML) {
-                selSus.innerHTML = CATEGORIES.SUSPECTS.map(i => `<option value="${i}">${i}</option>`).join('');
-                document.getElementById('selWeapon').innerHTML = CATEGORIES.WEAPONS.map(i => `<option value="${i}">${i}</option>`).join('');
-                document.getElementById('selRoom').innerHTML = CATEGORIES.ROOMS.map(i => `<option value="${i}">${i}</option>`).join('');
-            }
             tempSugg.suggesterId = players[currentTurnIdx]?.id || null;
-            if (currentTurnIdx === 0) {
-                const rec = getRecommendation();
-                if (!rec.allFound) {
-                    document.getElementById('selSuspect').value = rec.suspect;
-                    document.getElementById('selWeapon').value = rec.weapon;
-                    document.getElementById('selRoom').value = rec.room;
-                }
-            }
+            const rec = getRecommendation();
+            tempSugg.suspect = rec.suspect || CATEGORIES.SUSPECTS[0];
+            tempSugg.weapon = rec.weapon || CATEGORIES.WEAPONS[0];
+            tempSugg.room = rec.room || CATEGORIES.ROOMS[0];
             window.updateFormSelection();
         }
     };
@@ -488,18 +543,20 @@
     };
 
     window.submitSuggestion = () => {
-        const s = {
-            ...tempSugg, type: 'SUGGESTION',
-            suspect: document.getElementById('selSuspect').value, 
-            weapon: document.getElementById('selWeapon').value, 
-            room: document.getElementById('selRoom').value
-        };
+        const s = { ...tempSugg, timestamp: Date.now() };
         if (editingIndex !== null) { suggestions[editingIndex] = s; editingIndex = null; }
         else { suggestions.push(s); currentTurnIdx = (currentTurnIdx + 1) % players.length; }
         triggerSave(); render(); window.switchTab('BOARD');
-        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
-        document.getElementById('submitBtn').innerText = 'Log Record';
-        document.getElementById('cancelEditBtn').classList.add('hidden');
+        
+        tempSugg = { 
+            suggesterId: players[currentTurnIdx]?.id || null, 
+            suspect: '', weapon: '', room: '',
+            showerId: -1, cardShown: '', type: 'SUGGESTION' 
+        };
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerText = 'Log Result';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
     };
 
     window.skipTurn = () => {
@@ -514,26 +571,29 @@
         const s = suggestions[index];
         tempSugg = { ...s };
         window.switchTab('NEW');
-        if (s.type === 'SUGGESTION') {
-            document.getElementById('selSuspect').value = s.suspect;
-            document.getElementById('selWeapon').value = s.weapon;
-            document.getElementById('selRoom').value = s.room;
-        }
-        document.getElementById('submitBtn').innerText = 'Update';
-        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerText = 'Update';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
         window.updateFormSelection();
     };
 
     window.cancelEdit = () => {
         editingIndex = null;
-        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, showerId: -1, cardShown: '', type: 'SUGGESTION' };
-        document.getElementById('submitBtn').innerText = 'Log Record';
-        document.getElementById('cancelEditBtn').classList.add('hidden');
+        tempSugg = { 
+            suggesterId: players[currentTurnIdx]?.id || null, 
+            suspect: '', weapon: '', room: '',
+            showerId: -1, cardShown: '', type: 'SUGGESTION' 
+        };
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.innerText = 'Log Result';
+        const cancelBtn = document.getElementById('cancelEditBtn');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
         window.switchTab('LOG');
     };
 
     window.deleteSuggestion = (index) => {
-        if (confirm('Delete log?')) { suggestions.splice(index, 1); triggerSave(); render(); }
+        if (confirm('Delete this log entry?')) { suggestions.splice(index, 1); triggerSave(); render(); }
     };
 
     window.updatePlayerName = (id, v) => { 
@@ -545,7 +605,8 @@
     window.resetGame = () => { 
         if (confirm('Reset entire session?')) { 
             players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
-            document.getElementById('playerInputsContainer').innerHTML = ''; 
+            const cont = document.getElementById('playerInputsContainer');
+            if (cont) cont.innerHTML = ''; 
             localStorage.removeItem(STORAGE_KEY);
             render(); 
         } 
@@ -554,6 +615,15 @@
     window.updateFormSelection = () => {
         const suggEl = document.getElementById('suggesterOptions');
         if (suggEl) suggEl.innerHTML = players.map(p => `<button class="btn-option ${String(tempSugg.suggesterId) === String(p.id) ? 'active' : ''}" onclick="window.setSuggVal('suggesterId', '${p.id}')">${p.name}</button>`).join('');
+        
+        const fillGrid = (elId, list, key) => {
+            const el = document.getElementById(elId);
+            if (el) el.innerHTML = list.map(item => `<button class="btn-option ${tempSugg[key] === item ? 'active' : ''}" onclick="window.setSuggVal('${key}', '${item}')">${item}</button>`).join('');
+        };
+        fillGrid('suspectOptions', CATEGORIES.SUSPECTS, 'suspect');
+        fillGrid('weaponOptions', CATEGORIES.WEAPONS, 'weapon');
+        fillGrid('roomOptions', CATEGORIES.ROOMS, 'room');
+
         const showEl = document.getElementById('showerOptions');
         if (showEl) {
             let html = `<button class="btn-option ${tempSugg.showerId === -1 ? 'active' : ''}" onclick="window.setSuggVal('showerId', -1)">No One</button>`;
@@ -564,18 +634,19 @@
             });
             showEl.innerHTML = html;
         }
+
         const spec = document.getElementById('specificCardSection');
         if (spec) {
             if (tempSugg.showerId !== -1) {
                 spec.classList.remove('hidden');
-                const cards = [document.getElementById('selSuspect')?.value, document.getElementById('selWeapon')?.value, document.getElementById('selRoom')?.value].filter(Boolean);
+                const cards = [tempSugg.suspect, tempSugg.weapon, tempSugg.room].filter(Boolean);
                 document.getElementById('shownCardOptions').innerHTML = `<button class="btn-option ${tempSugg.cardShown === '' ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '')">Unknown</button>` +
                         cards.map(c => `<button class="btn-option ${tempSugg.cardShown === c ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '${c}')">${c}</button>`).join('');
             } else { spec.classList.add('hidden'); tempSugg.cardShown = ''; }
         }
     };
 
-    // --- Deductions ---
+    // --- Deduction Logic ---
     function calculateDeductions() {
         if (!players || players.length === 0) return;
         ALL_CARDS.forEach(card => {
@@ -673,8 +744,10 @@
             document.getElementById('setupView')?.classList.add('hidden');
             document.getElementById('playView')?.classList.remove('hidden');
             calculateDeductions();
-            document.getElementById('currentTurnNameDisplay').innerText = players[currentTurnIdx]?.name || 'Unknown';
-            document.getElementById('turnStatusDot').style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
+            const turnNameEl = document.getElementById('currentTurnNameDisplay');
+            if (turnNameEl) turnNameEl.innerText = players[currentTurnIdx]?.name || 'Unknown';
+            const dotEl = document.getElementById('turnStatusDot');
+            if (dotEl) dotEl.style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
             renderBoard();
             renderLog();
         }
@@ -738,8 +811,15 @@
                         const s = gameDeductionMatrix[item][p.id];
                         const man = manualOverrides[item]?.[p.id];
                         const manCls = man === 1 ? 'manual-yes' : man === -1 ? 'manual-no' : '';
+                        
+                        let icon = 'help_outline';
+                        if (s === 1) icon = 'check_circle';
+                        else if (s === -1) icon = 'cancel';
+                        
                         html += `<td class="deduction-cell ${manCls}" onclick="window.toggleManualOverride('${item}', '${p.id}')">
-                            <div class="${s === 1 ? 'cell-yes' : s === -1 ? 'cell-no' : 'cell-unknown'}">${s === 1 ? '✔' : s === -1 ? 'x' : '?'}</div>
+                            <div class="${s === 1 ? 'cell-yes' : s === -1 ? 'cell-no' : 'cell-unknown'}">
+                                <span class="material-icons">${icon}</span>
+                            </div>
                         </td>`;
                     });
                     html += `</tr>`; tbody.innerHTML += html;
@@ -752,9 +832,48 @@
         const container = document.getElementById('logContainer');
         if (container) container.innerHTML = suggestions.length ? suggestions.map((s, idx) => ({ s, idx })).reverse().map(({ s, idx }) => {
             const suggester = players.find(p => String(p.id) === String(s.suggesterId))?.name || 'Someone';
-            if (s.type === 'SKIP') return `<div class="log-item animate-in"><div class="log-main"><div class="log-who">${suggester} skipped turn</div></div><div class="log-actions"><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
+            const timeStr = s.timestamp ? new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            
+            if (s.type === 'SKIP') return `
+                <div class="log-item animate-in">
+                    <div class="log-header">
+                        <div class="log-who-wrap">
+                            <div class="log-who">${suggester} passed turn</div>
+                            <div class="log-timestamp">${timeStr}</div>
+                        </div>
+                        <div class="log-actions">
+                            <button class="btn-log-action delete" onclick="window.deleteSuggestion(${idx})" title="Delete">
+                                <span class="material-icons">delete_outline</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            
             const shower = s.showerId === -1 ? 'No one' : players.find(p => String(p.id) === String(s.showerId))?.name || 'Someone';
-            return `<div class="log-item animate-in"><div class="log-main"><div class="log-who">${suggester} inquired:</div><div class="log-cards"><span class="log-badge">${s.suspect}</span><span class="log-badge">${s.weapon}</span><span class="log-badge">${s.room}</span></div></div><div class="log-actions"><div class="log-result">${shower} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div><button class="btn-icon-action" onclick="window.editSuggestion(${idx})">Edit</button><button class="btn-icon-action delete" onclick="window.deleteSuggestion(${idx})">Del</button></div></div>`;
+            
+            return `
+                <div class="log-item animate-in">
+                    <div class="log-header">
+                        <div class="log-who-wrap">
+                            <div class="log-who">${suggester} inquired:</div>
+                            <div class="log-timestamp">${timeStr}</div>
+                        </div>
+                        <div class="log-actions">
+                            <button class="btn-log-action" onclick="window.editSuggestion(${idx})" title="Edit">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="btn-log-action delete" onclick="window.deleteSuggestion(${idx})" title="Delete">
+                                <span class="material-icons">delete_outline</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="log-tag-group">
+                        <span class="log-badge">${s.suspect}</span>
+                        <span class="log-badge">${s.weapon}</span>
+                        <span class="log-badge">${s.room}</span>
+                    </div>
+                    <div class="log-result">${shower} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div>
+                </div>`;
         }).join('') : `<p style="text-align:center; color:var(--text-muted); padding:30px; font-weight:700;">No history logged yet.</p>`;
     }
 
