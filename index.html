@@ -2,1070 +2,733 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Clue Solver - Glassmorphism Edition</title>
-    <!-- Google Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- SweetAlert2 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Clue Solver Pro | Master Detective</title>
+    
+    <!-- Material Symbols Outlined - Modern & Reliable -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --bg: #f0f2f5;
-            /* Prominent Glass Settings */
-            --card-bg: rgba(255, 255, 255, 0.45);
-            --header-bg: rgba(255, 255, 255, 0.3);
-            --border: rgba(255, 255, 255, 0.5);
-            --glass-blur: blur(24px);
-            
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --radius: 20px;
-            --radius-sm: 12px;
-            --safe-bottom: env(safe-area-inset-bottom, 16px);
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --p: #6366f1;
+            --p-light: #818cf8;
+            --p-dark: #4f46e5;
+            --acc: #f43f5e;
+            --succ: #10b981;
+            --warn: #f59e0b;
+            --bg: #f8fafc;
+            --card: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.08);
+            --text: #0f172a;
+            --text-m: #64748b;
+            --glass: blur(20px);
+            --shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --radius: 28px;
+            --radius-s: 16px;
+            --subtle: rgba(0, 0, 0, 0.04);
+            --input-bg: rgba(255, 255, 255, 0.5);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
             --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        body.dark-mode {
+        .dark-mode {
             --bg: #020617;
-            --card-bg: rgba(15, 23, 42, 0.5);
-            --header-bg: rgba(15, 23, 42, 0.3);
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --border: rgba(255, 255, 255, 0.15);
-            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            --card: rgba(15, 23, 42, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc;
+            --text-m: #94a3b8;
+            --shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+            --subtle: rgba(255, 255, 255, 0.06);
+            --input-bg: rgba(0, 0, 0, 0.3);
         }
 
-        /* SweetAlert2 Glass Integration */
-        .swal2-popup {
-            background: var(--card-bg) !important;
-            backdrop-filter: var(--glass-blur) !important;
-            -webkit-backdrop-filter: var(--glass-blur) !important;
-            border: 1px solid var(--border) !important;
-            border-radius: var(--radius) !important;
-            color: var(--text-main) !important;
-        }
-        .swal2-title, .swal2-html-container {
-            color: var(--text-main) !important;
-        }
-
-        /* Enhanced Animated Background */
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -2;
-            background: linear-gradient(-45deg, #e0e7ff, #f1f5f9, #fdf4ff, #e0e7ff);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-            transition: opacity 0.4s ease;
-        }
-
-        body.dark-mode::before {
-            background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #020617);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-        }
-
-        /* Floating Blobs for Glass Depth */
-        .bg-blobs {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .blob {
-            position: absolute;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
-            filter: blur(40px);
-            border-radius: 50%;
-            animation: float 25s infinite alternate ease-in-out, colorShift 30s infinite linear;
-        }
-
-        .blob-1 { top: -10%; left: -10%; background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%); }
-        .blob-2 { bottom: -10%; right: -10%; background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%); animation-delay: -5s; }
-        .blob-3 { top: 40%; right: 10%; width: 30vw; height: 30vw; background: radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%); animation-delay: -12s; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(20vw, 20vh) scale(1.2); }
-        }
-
-        @keyframes colorShift {
-            0% { filter: blur(40px) hue-rotate(0deg); }
-            100% { filter: blur(40px) hue-rotate(360deg); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes iconPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .animate-in { animation: fadeInUp 0.4s var(--spring); }
-        .icon-pop { animation: iconPop 0.2s var(--spring); }
-
-        * { 
-            box-sizing: border-box; 
-            margin: 0; padding: 0; 
-            -webkit-tap-highlight-color: transparent;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
         }
 
         body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: var(--text-main);
-            line-height: 1.4;
-            padding-bottom: calc(90px + var(--safe-bottom));
-            font-size: 15px; 
-            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; padding: 0; 
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; overflow-x: hidden;
+            transition: background 0.5s ease;
         }
 
-        .container { max-width: 800px; margin: 0 auto; padding: 8px; }
-        @media (min-width: 768px) { .container { padding: 24px; } }
+        .mesh {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(244, 63, 94, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
+            filter: blur(100px);
+        }
+
+        .glass {
+            background: var(--card);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: all 0.4s var(--spring);
+        }
+
+        .container { 
+            max-width: 1100px; margin: 0 auto; 
+            padding: calc(20px + var(--safe-top)) 16px calc(100px + var(--safe-bottom)); 
+        }
+
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .logo h1 { font-size: 1.6rem; font-weight: 900; margin: 0; letter-spacing: -1.5px; }
+        .logo span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--p); font-weight: 800; display: block; margin-bottom: -4px; }
+        
+        .header-actions { display: flex; gap: 8px; }
+        .icon-btn { 
+            width: 44px; height: 44px; border-radius: 14px; 
+            background: var(--card); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text); cursor: pointer; transition: 0.3s var(--spring);
+        }
+        .icon-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px -5px rgba(0,0,0,0.1); }
+        .icon-btn:active { transform: scale(0.9); }
+        .icon-btn.active { background: var(--p); color: white; border-color: var(--p); }
+
+        .setup-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+        @media (min-width: 850px) { .setup-grid { grid-template-columns: 1fr 1.2fr; } }
+
+        .section-label { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; color: var(--text-m); margin-bottom: 12px; display: block; letter-spacing: 1px; }
+
+        .player-row { 
+            display: flex; align-items: center; gap: 12px; 
+            background: var(--input-bg); border-radius: var(--radius-s);
+            padding: 10px 14px; margin-bottom: 8px; border: 1px solid var(--border);
+            animation: slideIn 0.3s var(--spring);
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .player-row input { 
+            background: transparent; border: none; color: var(--text); font-family: inherit;
+            font-weight: 700; font-size: 1rem; flex: 1;
+        }
+        .player-row .card-count { width: 44px; text-align: center; color: var(--p); font-weight: 800; border-radius: 8px; background: var(--subtle); padding: 4px; }
+
+        .recommendation-banner { 
+            margin-bottom: 24px; padding: 20px; border: 1px solid var(--border);
+            background: var(--card); overflow: hidden; position: relative;
+        }
+        .recommendation-banner::after {
+            content: 'INTELLIGENCE BRIEFING';
+            position: absolute; top: 10px; right: 10px; font-size: 0.5rem;
+            font-weight: 900; color: var(--p); opacity: 0.5;
+        }
+        .rec-trio {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px;
+        }
+        .rec-card {
+            background: var(--subtle); padding: 12px; border-radius: 16px; text-align: center;
+            border: 1px solid transparent; transition: 0.2s var(--spring); cursor: pointer;
+        }
+        .rec-card:hover { border-color: var(--p); transform: translateY(-3px); background: var(--card); }
+        .rec-card .emoji { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+        .rec-card .name { font-size: 0.75rem; font-weight: 800; display: block; }
+        .rec-card .utility { font-size: 0.6rem; font-weight: 900; color: var(--p); text-transform: uppercase; margin-top: 4px; display: block; }
+
+        .solution-shelf { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; position: relative; }
+        .solution-item { padding: 18px; text-align: center; border: 2px dashed var(--border); transition: 0.5s var(--spring); }
+        .solution-item.solved { border-style: solid; border-color: var(--succ); background: rgba(16, 185, 129, 0.08); transform: scale(1.02); }
+        .solution-item .val { font-weight: 800; font-size: 0.9rem; display: block; margin-top: 6px; }
+        .solution-item .emoji { font-size: 1.5rem; margin-bottom: 4px; display: block; }
+
+        /* Privacy Mode Styles */
+        .privacy-blur {
+            filter: blur(25px) !important;
+            opacity: 0.3 !important;
+            pointer-events: none !important;
+            user-select: none !important;
+        }
+
+        .privacy-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 100; text-align: center;
+            color: var(--text-m);
+        }
+
+        .table-container { 
+            overflow-x: auto; -webkit-overflow-scrolling: touch; 
+            border-radius: var(--radius); border: 1px solid var(--border);
+            margin-bottom: 24px; position: relative;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th, td { padding: 16px 14px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); }
+        td:first-child, th:first-child { 
+            text-align: left; position: sticky; left: 0; background: var(--card); 
+            backdrop-filter: var(--glass); z-index: 10; font-weight: 700; width: 180px;
+            border-right: 1px solid var(--border);
+        }
+        th { background: var(--subtle); font-size: 0.65rem; text-transform: uppercase; color: var(--text-m); letter-spacing: 1.2px; font-weight: 900; }
+
+        .status-cell { cursor: pointer; transition: 0.2s var(--spring); }
+        .status-cell:active { transform: scale(0.8); }
+        .status-cell.confirmed { color: var(--succ); }
+        .status-cell.ruled-out { color: var(--acc); opacity: 0.25; }
+
+        .bottom-nav { 
+            position: fixed; bottom: var(--safe-bottom); left: 50%; transform: translateX(-50%);
+            width: calc(100% - 32px); max-width: 600px; height: 80px;
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 1000; padding: 0 12px;
+        }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            color: var(--text-m); cursor: pointer; transition: 0.3s var(--spring); flex: 1;
+            padding: 10px 0; border-radius: 16px;
+        }
+        .nav-item.active { color: var(--p); background: var(--subtle); }
+        .nav-item .material-symbols-outlined { font-size: 26px; }
+        .nav-item span { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .choice-chip { 
+            padding: 14px 10px; border-radius: 18px; border: 1.5px solid var(--border);
+            background: var(--input-bg); font-size: 0.85rem; font-weight: 800; text-align: center;
+            transition: 0.3s var(--spring); cursor: pointer; color: var(--text);
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .choice-chip.active { border-color: var(--p); background: var(--p); color: white; transform: translateY(-4px); box-shadow: 0 8px 15px -5px rgba(99, 102, 241, 0.4); }
+
+        .btn { 
+            width: 100%; padding: 20px; border-radius: 20px; border: none; font-family: inherit;
+            font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.3s var(--spring);
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .btn-p { background: var(--p); color: white; box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); }
+        .btn-acc { background: var(--acc); color: white; margin-top: 12px; box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.3); }
+        .btn-subtle { background: var(--subtle); color: var(--text); }
 
         .hidden { display: none !important; }
-        
-        .card { 
-            background: var(--card-bg); 
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border-radius: var(--radius); 
-            border: 1px solid var(--border); 
-            padding: 14px; 
-            margin-bottom: 12px; 
-            box-shadow: var(--shadow); 
-            transition: background-color 0.3s, border-color 0.3s, transform 0.2s var(--spring);
+        .fade-in { animation: fadeIn 0.5s var(--spring) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        #syncToast { 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 10px 24px; border-radius: 24px; background: var(--succ); color: white;
+            font-size: 0.8rem; font-weight: 900; z-index: 2000; opacity: 0; pointer-events: none; transition: 0.4s var(--spring);
         }
+        #syncToast.show { opacity: 1; top: 35px; }
 
-        h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; }
-        
-        button { 
-            cursor: pointer; 
-            border: none; 
-            font-weight: 700; 
-            transition: all 0.25s var(--spring); 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative;
-            overflow: hidden;
+        .card-editor-row {
+            display: grid; grid-template-columns: 50px 1fr 50px; gap: 10px; margin-bottom: 10px;
         }
-        button:active { transform: scale(0.92); opacity: 0.8; }
-        
-        .setup-header { text-align: center; margin-bottom: 20px; padding: 5px; position: relative; }
-        .setup-header h1 { font-size: 1.75rem; color: var(--text-main); background: linear-gradient(135deg, var(--primary), #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .setup-header p { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 2px; }
-
-        .header-actions {
-            position: absolute; top: 5px; right: 5px;
-            display: flex; gap: 8px;
+        .card-editor-row input {
+            background: var(--subtle); border: 1px solid var(--border); padding: 10px;
+            border-radius: 12px; color: var(--text); font-family: inherit; font-weight: 700;
         }
-
-        .action-btn {
-            background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main);
-            width: 36px; height: 36px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-        }
-        .action-btn .material-icons { font-size: 18px; }
-
-        .btn-text-icon {
-            background: rgba(255, 255, 255, 0.15);
-            color: var(--primary);
-            padding: 10px 16px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            font-size: 13px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s var(--spring);
-        }
-        body.dark-mode .btn-text-icon { background: rgba(0, 0, 0, 0.2); }
-        .btn-text-icon:active { background: rgba(99, 102, 241, 0.1); }
-
-        .form-section { margin-bottom: 24px; }
-        .form-section h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        
-        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 8px; }
-        @media (min-width: 640px) { .player-inputs { grid-template-columns: repeat(2, 1fr); } }
-        
-        .player-input-row { 
-            background: rgba(255, 255, 255, 0.15); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); 
-            display: flex; gap: 8px; align-items: center; transition: background-color 0.2s;
-        }
-        body.dark-mode .player-input-row { background: rgba(0, 0, 0, 0.2); }
-        .player-input-row input[type="text"], .custom-name-input { background: transparent; border: none; font-weight: 700; outline: none; flex: 1; min-width: 0; font-size: 15px; color: var(--text-main); }
-        .player-input-row input[type="number"] { width: 40px; border: 1px solid var(--border); border-radius: 6px; padding: 4px; font-weight: 800; text-align: center; font-size: 13px; background: rgba(255, 255, 255, 0.15); color: var(--text-main); }
-        .player-badge { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .player-badge .material-icons { font-size: 16px; }
-        
-        .btn-remove-player { background: rgba(239, 68, 68, 0.15); color: var(--danger); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s var(--spring); }
-        .btn-remove-player .material-icons { font-size: 18px; }
-
-        .label-small { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
-        .card-pill { 
-            padding: 10px 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); 
-            border: 1px solid var(--border); font-size: 12px; font-weight: 700; text-align: center; 
-            color: var(--text-main); transition: all 0.25s var(--spring);
-        }
-        body.dark-mode .card-pill { background: rgba(0, 0, 0, 0.2); }
-        .card-pill.selected { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
-
-        .btn-start { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1rem; margin-top: 16px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
-
-        /* Floating Navigation Tabs at Bottom */
-        .nav-tabs { 
-            display: flex; gap: 4px; background: var(--header-bg); padding: 6px; border-radius: 18px; 
-            position: fixed; 
-            bottom: calc(12px + var(--safe-bottom));
-            left: 12px; right: 12px;
-            z-index: 100; box-shadow: var(--shadow);
-            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border);
-        }
-        .tab-btn { 
-            flex: 1; padding: 12px 4px; border-radius: 14px; background: transparent; 
-            color: var(--text-muted); font-size: 12px; font-weight: 800; text-align: center; 
-            white-space: nowrap; transition: all 0.3s var(--spring);
-        }
-        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transform: translateY(-2px); border: 1px solid var(--border); }
-
-        /* Assistant */
-        .assistant-box { background: rgba(255, 251, 235, 0.4); border: 1px solid rgba(253, 230, 138, 0.5); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; backdrop-filter: var(--glass-blur); transition: all 0.3s; }
-        .assistant-box.my-turn { background: rgba(239, 246, 255, 0.4); border-color: rgba(191, 219, 254, 0.5); }
-        body.dark-mode .assistant-box { background: rgba(69, 26, 3, 0.3); border-color: rgba(146, 64, 14, 0.2); }
-        body.dark-mode .assistant-box.my-turn { background: rgba(30, 58, 138, 0.3); border-color: rgba(37, 99, 235, 0.2); }
-        
-        .assistant-content h4 { font-size: 9px; text-transform: uppercase; color: #b45309; letter-spacing: 0.1em; margin-bottom: 4px; }
-        body.dark-mode .assistant-content h4 { color: #fcd34d; }
-        body.dark-mode .assistant-box.my-turn h4 { color: #93c5fd; }
-
-        .sugg-chip { background: rgba(254, 243, 199, 0.5); padding: 4px 10px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(253, 230, 138, 0.3); font-weight: 800; color: #92400e; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .assistant-box.my-turn .sugg-chip { background: rgba(219, 234, 254, 0.5); border-color: rgba(191, 219, 254, 0.3); color: #1e40af; }
-
-        .turn-card { background: rgba(238, 242, 255, 0.4); border: 1px solid rgba(199, 210, 254, 0.4); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: var(--glass-blur); transition: background-color 0.3s; }
-        body.dark-mode .turn-card { background: rgba(30, 27, 75, 0.4); border-color: rgba(49, 46, 129, 0.4); }
-        .turn-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
-        .turn-name { font-weight: 800; color: #1e1b4b; font-size: 1.1rem; }
-        body.dark-mode .turn-name { color: #e0e7ff; }
-
-        .solution-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
-        .solution-card { padding: 8px 4px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); backdrop-filter: var(--glass-blur); display: flex; flex-direction: column; align-items: center; transition: all 0.4s var(--spring); }
-        .solution-card.found { border-color: var(--success); background: rgba(236, 253, 245, 0.5); transform: scale(1.05); }
-        body.dark-mode .solution-card.found { background: rgba(6, 78, 59, 0.5); }
-        .solution-label { font-size: 8px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
-        .solution-value { font-size: 0.9rem; font-weight: 800; color: var(--text-main); text-align: center; }
-        .solution-card.found .solution-value { color: #065f46; }
-        body.dark-mode .solution-card.found .solution-value { color: #34d399; }
-
-        /* Compact Glass Table */
-        .table-wrap { 
-            overflow-x: auto; background: var(--card-bg); backdrop-filter: var(--glass-blur); border-radius: var(--radius-sm); border: 1px solid var(--border); 
-            -webkit-overflow-scrolling: touch; position: relative; box-shadow: var(--shadow);
-        }
-        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
-        th, td { padding: 8px 6px; border-bottom: 1px solid var(--border); font-size: 13px; min-width: 55px; color: var(--text-main); transition: background-color 0.2s; }
-        th:first-child, td:first-child { 
-            min-width: 110px; width: 120px; position: sticky; left: 0; background: var(--card-bg); z-index: 10;
-            border-right: 1px solid var(--border); font-weight: 700; transition: background-color 0.2s;
-        }
-        th:first-child { z-index: 20; background: var(--header-bg); }
-        th { background: var(--header-bg); font-weight: 800; color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
-
-        .header-cell-content { display: flex; flex-direction: column; align-items: center; }
-        .header-edit { 
-            background: transparent; border: none; font-family: inherit; font-weight: 900; color: var(--text-main); 
-            font-size: 10px; text-transform: uppercase; width: 100%; text-align: center; padding: 2px 0; outline: none;
-            transition: all 0.2s;
-        }
-        .header-edit:focus { background: rgba(99, 102, 241, 0.1); border-radius: 4px; }
-        .card-count-indicator { font-size: 9px; color: var(--text-muted); font-weight: 700; }
-
-        .category-row { background: var(--header-bg); font-weight: 900; font-size: 9px; text-transform: uppercase; color: var(--primary); }
-        .category-row td { padding: 4px 10px; }
-
-        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.1s var(--spring); }
-        .deduction-cell:active { background: rgba(0, 0, 0, 0.08); }
-        .cell-yes { color: var(--success); text-align: center; }
-        .cell-yes .material-icons { font-size: 20px; animation: iconPop 0.25s var(--spring); }
-        .cell-no { color: var(--danger); text-align: center; opacity: 0.35; }
-        .cell-no .material-icons { font-size: 16px; animation: iconPop 0.25s var(--spring); }
-        .cell-unknown { text-align: center; color: #cbd5e1; }
-        .cell-unknown .material-icons { font-size: 16px; }
-        
-        .manual-yes { background: rgba(16, 185, 129, 0.1) !important; box-shadow: inset 0 0 0 1px var(--success); }
-        .manual-no { background: rgba(239, 68, 68, 0.1) !important; box-shadow: inset 0 0 0 1px var(--danger); }
-
-        .row-found { background-color: rgba(16, 185, 129, 0.05) !important; }
-        .row-found td:first-child { color: #059669 !important; background-color: rgba(16, 185, 129, 0.05) !important; }
-        .row-recommended { background-color: rgba(99, 102, 241, 0.05) !important; }
-        .row-recommended td:first-child { color: #2563eb !important; border-left: 4px solid var(--primary); background-color: rgba(99, 102, 241, 0.05) !important; }
-
-        /* Tag-Style Form Controls */
-        .select-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-        .btn-option { 
-            padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.1); 
-            font-size: 12px; text-align: center; font-weight: 700; display: flex; align-items: center; justify-content: center; 
-            min-height: 38px; color: var(--text-muted); transition: all 0.2s var(--spring); flex: 1 0 auto; max-width: calc(50% - 3px);
-        }
-        body.dark-mode .btn-option { background: rgba(0, 0, 0, 0.15); }
-        @media (min-width: 480px) { .btn-option { max-width: calc(33.333% - 4px); } }
-        .btn-option.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25); transform: translateY(-1px); }
-
-        /* Logs Tab Styling */
-        .log-item { 
-            background: var(--card-bg); backdrop-filter: var(--glass-blur); padding: 12px; border-radius: 16px; border: 1px solid var(--border); 
-            margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow);
-            transition: all 0.3s var(--spring);
-        }
-        .log-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 10px; }
-        .log-who { font-weight: 800; font-size: 13px; color: var(--text-main); }
-        .log-timestamp { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-        .log-tag-group { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0; }
-        .log-badge { font-size: 10px; padding: 4px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-muted); font-weight: 800; border: 1px solid var(--border); }
-        .log-result { font-size: 12px; color: var(--primary); font-weight: 800; background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 10px; align-self: flex-start; border: 1px solid var(--border); }
-
-        .log-actions { display: flex; gap: 6px; }
-        .btn-log-action { width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s var(--spring); }
-        .btn-log-action .material-icons { font-size: 18px; }
-        .btn-log-action.delete { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-
-        /* Revamped Saved Indicator at Top Center */
-        #syncIndicator { 
-            position: fixed; 
-            top: 20px; 
-            left: 50%; 
-            transform: translateX(-50%) translateY(-20px); 
-            font-size: 10px; font-weight: 900; color: var(--text-muted); background: var(--card-bg); 
-            padding: 8px 24px; border-radius: 20px; border: 1px solid var(--border); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; z-index: 1000; 
-            text-transform: uppercase; backdrop-filter: var(--glass-blur);
-            opacity: 0;
-            pointer-events: none;
-            transition: transform 0.6s var(--spring), opacity 1.5s ease-out;
-        }
-        #syncIndicator.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            transition: transform 0.4s var(--spring), opacity 0.3s ease-in;
-        }
-        .syncing-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
-        .syncing .syncing-dot { background: var(--primary); animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
     </style>
 </head>
-<body class="">
+<body>
 
-<div class="bg-blobs">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
-</div>
+<div class="mesh"></div>
+<div id="syncToast">Progress Secured</div>
 
 <div class="container" id="app">
     <!-- SETUP VIEW -->
-    <div id="setupView" class="animate-in">
-        <header class="setup-header">
-            <div class="header-actions">
-                <button class="action-btn" onclick="window.toggleCustomization()" title="Customize Cards">
-                    <span class="material-icons">settings</span>
-                </button>
-                <button class="action-btn" onclick="window.toggleTheme()" title="Toggle Theme">
-                    <span class="material-icons">brightness_medium</span>
-                </button>
+    <div id="setupView" class="fade-in">
+        <header>
+            <div class="logo">
+                <span>The Ultimate Deduction Tool</span>
+                <h1>CLUE SOLVER PRO</h1>
             </div>
-            <h1>CLUE SOLVER</h1>
-            <p>Investigation Assistant</p>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme"><span class="material-symbols-outlined">brightness_6</span></button>
+            </div>
         </header>
 
-        <!-- Customization Card -->
-        <div id="customizationCard" class="card hidden animate-in">
-            <div class="form-section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h2>Card Configuration</h2>
-                    <button class="action-btn" onclick="window.toggleCustomization()">
-                        <span class="material-icons">close</span>
+        <div class="setup-grid">
+            <div class="glass" style="padding: 24px;">
+                <span class="section-label">1. Investigation Team</span>
+                <div id="playerList"></div>
+                <button class="btn btn-subtle" style="margin-top: 12px;" onclick="addPlayer()">
+                    <span class="material-symbols-outlined">person_add</span> Add Player
+                </button>
+
+                <div style="margin-top: 32px;">
+                    <span class="section-label">2. Mystery Management</span>
+                    <button class="btn btn-subtle" style="margin-bottom: 12px;" onclick="toggleCardEditor()">
+                        <span class="material-symbols-outlined">edit_note</span> Customize Cards
+                    </button>
+                    <button class="btn btn-p" onclick="startGame()">
+                        <span class="material-symbols-outlined">play_arrow</span> Start Investigation
                     </button>
                 </div>
-                <div id="customNamesContainer" class="space-y-4">
-                    <!-- Suspects -->
-                    <div style="margin-bottom: 20px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <h3 class="label-small">Suspects</h3>
-                            <button onclick="window.addCustomCard('SUSPECTS')" class="action-btn" style="width: 28px; height: 28px; color: var(--primary);">
-                                <span class="material-icons" style="font-size:20px;">add</span>
-                            </button>
-                        </div>
-                        <div id="editSuspects" class="player-inputs"></div>
-                    </div>
-                    <!-- Weapons -->
-                    <div style="margin-bottom: 20px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <h3 class="label-small">Weapons</h3>
-                            <button onclick="window.addCustomCard('WEAPONS')" class="action-btn" style="width: 28px; height: 28px; color: var(--primary);">
-                                <span class="material-icons" style="font-size:20px;">add</span>
-                            </button>
-                        </div>
-                        <div id="editWeapons" class="player-inputs"></div>
-                    </div>
-                    <!-- Rooms -->
-                    <div style="margin-bottom: 20px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <h3 class="label-small">Rooms</h3>
-                            <button onclick="window.addCustomCard('ROOMS')" class="action-btn" style="width: 28px; height: 28px; color: var(--primary);">
-                                <span class="material-icons" style="font-size:20px;">add</span>
-                            </button>
-                        </div>
-                        <div id="editRooms" class="player-inputs"></div>
-                    </div>
-                </div>
-                <button class="btn-start" onclick="window.toggleCustomization()">Save Configuration</button>
+            </div>
+
+            <div class="glass" style="padding: 24px;">
+                <span class="section-label">3. Your Secret Hand</span>
+                <p style="font-size: 0.8rem; color: var(--text-m); margin-bottom: 24px; font-weight: 500;">Toggle the cards you currently hold in your hand.</p>
+                <div id="handGrid"></div>
             </div>
         </div>
+    </div>
 
-        <div id="mainSetupCard" class="card">
-            <div class="form-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h2>Investigation Team</h2>
-                    <span class="label-small">Cards</span>
-                </div>
-                <div class="player-inputs" id="playerInputsContainer"></div>
-                <div style="margin-top: 16px; display: flex; justify-content: center;">
-                    <button onclick="window.addPlayerInput()" class="btn-text-icon">
-                        <span class="material-icons">person_add</span> ADD PLAYER
-                    </button>
-                </div>
+    <!-- CARD EDITOR -->
+    <div id="cardEditor" class="hidden fade-in" style="margin-bottom: 24px;">
+        <div class="glass" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <span class="section-label" style="margin: 0">Customize Investigation Assets</span>
+                <button class="icon-btn" onclick="toggleCardEditor()" style="width: 36px; height: 36px;"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <div class="form-section">
-                <h2>Your Hand</h2>
-                <div id="setupCardsGrid" class="card-grid"></div>
-            </div>
-            <button class="btn-start" onclick="window.startGame()">Initialize Solver</button>
+            <div id="editorContent"></div>
         </div>
     </div>
 
     <!-- PLAY VIEW -->
     <div id="playView" class="hidden">
-        <div id="tab-BOARD" class="animate-in">
-            <div class="turn-card">
-                <div class="turn-info">
-                    <div class="turn-dot" id="turnStatusDot"></div>
-                    <div>
-                        <div class="turn-label">Current Turn</div>
-                        <div class="turn-name" id="currentTurnNameDisplay">Name</div>
-                    </div>
+        <div id="tab-BOARD" class="fade-in">
+            <header>
+                <div class="logo">
+                    <span>Active Detective</span>
+                    <h1 id="activePlayerName">Detective</h1>
                 </div>
-                <div style="display: flex; gap: 6px;">
-                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" title="Prev" style="padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-main); height: 38px;">
-                        <span class="material-icons">chevron_left</span>
+                <div class="header-actions">
+                    <!-- Toggle Privacy Mode -->
+                    <button id="privacyToggle" class="icon-btn" onclick="togglePrivacy()" title="Privacy Mode">
+                        <span class="material-symbols-outlined">visibility</span>
                     </button>
-                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" title="Next" style="padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-main); height: 38px;">
-                        <span class="material-icons">chevron_right</span>
-                    </button>
+                    <button class="icon-btn" onclick="adjustTurn(-1)"><span class="material-symbols-outlined">arrow_back_ios_new</span></button>
+                    <button class="icon-btn" onclick="adjustTurn(1)"><span class="material-symbols-outlined">arrow_forward_ios</span></button>
+                </div>
+            </header>
+
+            <!-- Solution Shelf wrapper for privacy -->
+            <div id="solutionWrapper" style="position: relative;">
+                <div class="solution-shelf" id="solutionShelf"></div>
+            </div>
+
+            <!-- Recommendation wrapper for privacy -->
+            <div id="recWrapper" style="position: relative;">
+                <div class="glass recommendation-banner" id="recBanner">
+                    <span class="section-label" style="margin:0">Suggested Inquiry for your turn</span>
+                    <div id="recContainer" class="rec-trio"></div>
                 </div>
             </div>
 
-            <div id="recommendationBox" class="assistant-box">
-                <div class="assistant-icon">
-                    <span class="material-icons">lightbulb</span>
-                </div>
-                <div class="assistant-content">
-                    <h4 id="recommendationHeader">Strategic Inquiry</h4>
-                    <div id="recommendationText" class="assistant-suggestion">Calculating...</div>
-                </div>
-            </div>
-            <div class="solution-grid" id="solutionBanner"></div>
-            <div class="table-wrap">
+            <div class="table-container glass" id="matrixWrapper">
                 <table id="deductionTable">
-                    <thead><tr id="tableHeader"></tr></thead>
+                    <thead><tr id="tableHead"></tr></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
-            <p style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 10px; font-weight: 600;">
-                💡 Tap cells to toggle manual overrides (✔ / x)
-            </p>
         </div>
 
-        <div id="tab-LOG" class="hidden animate-in">
-            <div id="logContainer"></div>
+        <div id="tab-LOG" class="hidden fade-in">
+            <span class="section-label">Historical Data</span>
+            <div id="logList"></div>
         </div>
 
-        <div id="tab-NEW" class="hidden animate-in">
-            <div class="card">
+        <div id="tab-NEW" class="hidden fade-in">
+            <div class="glass" style="padding: 24px;">
                 <div class="form-group">
-                    <label>Inquirer</label>
-                    <div id="suggesterOptions" class="select-grid"></div>
-                </div>
-                <div id="inquirySection">
-                    <div class="form-group">
-                        <label>Suspect</label>
-                        <div id="suspectOptions" class="select-grid"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Weapon</label>
-                        <div id="weaponOptions" class="select-grid"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Room</label>
-                        <div id="roomOptions" class="select-grid"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Reveal Outcome</label>
-                        <div id="showerOptions" class="select-grid"></div>
-                    </div>
-                    <div id="specificCardSection" class="form-group hidden animate-in">
-                        <label>Which card was revealed to you?</label>
-                        <div id="shownCardOptions" class="select-grid"></div>
-                    </div>
+                    <span class="section-label">Origin of Inquiry</span>
+                    <div id="suggesterChoices" class="choice-grid"></div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Result</button>
-                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-muted);">Pass</button>
+                <div class="form-group">
+                    <span class="section-label">Suspect</span>
+                    <div id="suspectChoices" class="choice-grid"></div>
                 </div>
-                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-muted); margin-top: 10px;">Abort Edit</button>
+                <div class="form-group">
+                    <span class="section-label">Weapon</span>
+                    <div id="weaponChoices" class="choice-grid"></div>
+                </div>
+                <div class="form-group">
+                    <span class="section-label">Room</span>
+                    <div id="roomChoices" class="choice-grid"></div>
+                </div>
+
+                <div class="form-group">
+                    <span class="section-label">Reveal Result</span>
+                    <div id="showerChoices" class="choice-grid"></div>
+                </div>
+
+                <div id="cardShownSection" class="form-group hidden">
+                    <span class="section-label">Revealed Asset</span>
+                    <div id="shownChoices" class="choice-grid"></div>
+                </div>
+
+                <div style="display: grid; gap: 14px;">
+                    <button class="btn btn-p" onclick="submitInquiry()">
+                        <span class="material-symbols-outlined">playlist_add_check</span> Log Investigation Result
+                    </button>
+                    <button class="btn btn-acc" onclick="submitFailedAccusation()">
+                        <span class="material-symbols-outlined">gavel</span> Failed Accusation Report
+                    </button>
+                    <button class="btn btn-subtle" onclick="skipTurn()">
+                        <span class="material-symbols-outlined">skip_next</span> Pass Turn
+                    </button>
+                </div>
             </div>
         </div>
-        
-        <!-- Bottom Tab Menu -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">ANALYSIS</button>
-            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">LOGS</button>
-            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ ASK</button>
-            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 40px; padding: 0;">
-                <span class="material-icons">brightness_medium</span>
-            </button>
-            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto; padding: 0 8px;">RESET</button>
-        </div>
+
+        <nav class="bottom-nav glass">
+            <div class="nav-item active" id="nav-BOARD" onclick="switchTab('BOARD')">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Matrix</span>
+            </div>
+            <div class="nav-item" id="nav-NEW" onclick="switchTab('NEW')">
+                <span class="material-symbols-outlined">add_circle</span>
+                <span>New Log</span>
+            </div>
+            <div class="nav-item" id="nav-LOG" onclick="switchTab('LOG')">
+                <span class="material-symbols-outlined">history</span>
+                <span>History</span>
+            </div>
+            <div class="nav-item" onclick="resetGame()">
+                <span class="material-symbols-outlined" style="color: var(--acc)">restart_alt</span>
+                <span>Clear</span>
+            </div>
+        </nav>
     </div>
 </div>
 
-<div id="syncIndicator">
-    <div class="syncing-dot"></div>
-    <span id="syncText">Saved</span>
-</div>
-
-<script type="module">
-    // --- State Management ---
-    let players = []; 
-    let myCards = []; 
-    let suggestions = []; 
-    let manualOverrides = {}; 
-    let gameDeductionMatrix = {}; 
-    let gameState = 'SETUP';
-    let currentTurnIdx = 0;
-    let isInitialLoad = true;
-    let theme = 'light';
-    let tempSugg = { suggesterId: null, suspect: '', weapon: '', room: '', showerId: -1, cardShown: '', type: 'SUGGESTION' };
-    let editingIndex = null;
-
-    let CATEGORIES = {
-        SUSPECTS: ['Miss Scarlett', 'Colonel Mustard', 'Dr. Orchid', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum'],
-        WEAPONS: ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'],
-        ROOMS: ['Kitchen', 'Ballroom', 'Conservatory', 'Billiard Room', 'Library', 'Study', 'Hall', 'Lounge', 'Dining Room']
+<script>
+    const DEFAULT_CATEGORIES = {
+        SUSPECTS: [
+            { name: 'Miss Scarlett', emoji: '💃' },
+            { name: 'Col. Mustard', emoji: '🎖️' },
+            { name: 'Dr. Orchid', emoji: '🔬' },
+            { name: 'Mr. Green', emoji: '💹' },
+            { name: 'Mrs. Peacock', emoji: '🦚' },
+            { name: 'Prof. Plum', emoji: '🎓' }
+        ],
+        WEAPONS: [
+            { name: 'Candlestick', emoji: '🕯️' },
+            { name: 'Dagger', emoji: '🗡️' },
+            { name: 'Lead Pipe', emoji: '🔧' },
+            { name: 'Revolver', emoji: '🔫' },
+            { name: 'Rope', emoji: '🪢' },
+            { name: 'Wrench', emoji: '🛠️' }
+        ],
+        ROOMS: [
+            { name: 'Kitchen', emoji: '🍳' },
+            { name: 'Ballroom', emoji: '💃' },
+            { name: 'Conservatory', emoji: '🪴' },
+            { name: 'Billiard Room', emoji: '🎱' },
+            { name: 'Library', emoji: '📚' },
+            { name: 'Study', emoji: '🖋️' },
+            { name: 'Hall', emoji: '🚪' },
+            { name: 'Lounge', emoji: '🛋️' },
+            { name: 'Dining Room', emoji: '🍷' }
+        ]
     };
-    
-    let ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
 
-    const STORAGE_KEY = 'clue_solver_glass_v1';
+    let state = {
+        players: [
+            { id: '1', name: 'You', cards: 6 },
+            { id: '2', name: 'Player 2', cards: 6 },
+            { id: '3', name: 'Player 3', cards: 6 }
+        ],
+        categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+        myHand: [],
+        logs: [],
+        manual: {},
+        turnIdx: 0,
+        mode: 'light',
+        view: 'SETUP',
+        privacy: false
+    };
 
-    function updateAllCards() {
-        ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
+    let tempEntry = { suggesterId: null, suspect: '', weapon: '', room: '', showerId: null, cardShown: '' };
+
+    const getCardByName = (name) => [...state.categories.SUSPECTS, ...state.categories.WEAPONS, ...state.categories.ROOMS].find(c => c.name === name);
+    const getAllCardNames = () => [...state.categories.SUSPECTS, ...state.categories.WEAPONS, ...state.categories.ROOMS].map(c => c.name);
+
+    function save() {
+        localStorage.setItem('clue_pro_ultra_state', JSON.stringify(state));
+        const toast = document.getElementById('syncToast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // --- Persistence ---
-    function saveState() {
-        const data = { players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, theme, categories: CATEGORIES, timestamp: Date.now() };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        
-        const indicator = document.getElementById('syncIndicator');
-        const text = document.getElementById('syncText');
-        if (indicator) {
-            text.innerText = 'Saving...';
-            indicator.classList.add('show');
-            indicator.classList.add('syncing');
-
-            // Wait for "saved" state
-            setTimeout(() => {
-                text.innerText = 'Saved';
-                indicator.classList.remove('syncing');
-                // Wait then fade out
-                setTimeout(() => {
-                    indicator.classList.remove('show');
-                }, 1500);
-            }, 600);
+    function load() {
+        const saved = localStorage.getItem('clue_pro_ultra_state');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            state = parsed;
+            if (state.mode === 'dark') document.body.classList.add('dark-mode');
         }
-    }
-
-    function loadState() {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-            try {
-                const d = JSON.parse(raw);
-                if (d.categories) CATEGORIES = d.categories;
-                players = d.players || [];
-                myCards = d.myCards || [];
-                suggestions = d.suggestions || [];
-                manualOverrides = d.manualOverrides || {};
-                gameState = d.gameState || 'SETUP';
-                currentTurnIdx = d.currentTurnIdx || 0;
-                theme = d.theme || 'light';
-                updateAllCards();
-                document.body.classList.toggle('dark-mode', theme === 'dark');
-            } catch (e) { console.error("Persistence error", e); }
-        }
-        isInitialLoad = false;
         render();
     }
 
-    let saveTimeout;
-    function triggerSave() { 
-        if (isInitialLoad) return;
-        clearTimeout(saveTimeout); 
-        saveTimeout = setTimeout(saveState, 500); 
-    }
-
-    // --- Customization Logic ---
-    window.toggleCustomization = () => {
-        const main = document.getElementById('mainSetupCard');
-        const cust = document.getElementById('customizationCard');
-        if (cust.classList.contains('hidden')) {
-            main.classList.add('hidden');
-            cust.classList.remove('hidden');
-            renderCustomizationInputs();
-        } else {
-            cust.classList.add('hidden');
-            main.classList.remove('hidden');
-            updateAllCards();
-            renderSetup(); // Refresh the Setup cards grid
-            triggerSave();
-        }
-    };
-
-    window.addCustomCard = (key) => {
-        const defaultName = key === 'SUSPECTS' ? 'New Suspect' : (key === 'WEAPONS' ? 'New Weapon' : 'New Room');
-        CATEGORIES[key].push(defaultName);
-        renderCustomizationInputs();
-    };
-
-    window.removeCustomCard = (key, index) => {
-        const removedItem = CATEGORIES[key][index];
-        CATEGORIES[key].splice(index, 1);
-        
-        // Cleanup state references to the removed item
-        myCards = myCards.filter(c => c !== removedItem);
-        if (manualOverrides[removedItem]) delete manualOverrides[removedItem];
-        
-        renderCustomizationInputs();
-    };
-
-    function renderCustomizationInputs() {
-        const fill = (id, list, key) => {
-            const el = document.getElementById(id);
-            el.innerHTML = list.map((name, i) => `
-                <div class="player-input-row animate-in" style="margin-bottom:4px;">
-                    <input type="text" value="${name}" oninput="window.updateCategoryName('${key}', ${i}, this.value)">
-                    <button onclick="window.removeCustomCard('${key}', ${i})" class="btn-remove-player" title="Remove">
-                        <span class="material-icons">remove</span>
-                    </button>
-                </div>
-            `).join('');
-        };
-        fill('editSuspects', CATEGORIES.SUSPECTS, 'SUSPECTS');
-        fill('editWeapons', CATEGORIES.WEAPONS, 'WEAPONS');
-        fill('editRooms', CATEGORIES.ROOMS, 'ROOMS');
-    }
-
-    window.updateCategoryName = (key, index, value) => {
-        CATEGORIES[key][index] = value;
-    };
-
-    // --- Global Handlers ---
-    window.toggleTheme = () => {
-        theme = theme === 'light' ? 'dark' : 'light';
-        document.body.classList.toggle('dark-mode', theme === 'dark');
-        triggerSave();
-    };
-
-    window.setSuggVal = (k, v) => { 
-        tempSugg[k] = v; 
-        if (k === 'showerId') tempSugg.cardShown = '';
-        window.updateFormSelection(); 
-    };
-    
-    window.syncSetupToState = () => {
-        const rows = document.querySelectorAll('#playerInputsContainer .player-input-row');
-        players = Array.from(rows).map(r => ({
-            id: String(r.dataset.playerId),
-            name: r.querySelector('input[type="text"]').value,
-            cardCount: parseInt(r.querySelector('input[type="number"]').value) || 6
-        }));
-        triggerSave();
-    };
-
-    window.addPlayerInput = (n='', c=6, existingId=null) => {
-        const cont = document.getElementById('playerInputsContainer');
-        if (!cont) return;
-        const id = existingId !== null ? String(existingId) : String(Date.now() + Math.random());
-        const div = document.createElement('div');
-        div.className = 'player-input-row animate-in';
-        div.dataset.playerId = id;
-        div.innerHTML = `
-            <div class="player-badge"><span class="material-icons">person</span></div>
-            <input type="text" placeholder="Name" value="${n||'Player'}" oninput="window.syncSetupToState()">
-            <input type="number" value="${c}" min="1" oninput="window.syncSetupToState()">
-            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();">
-                <span class="material-icons">remove_circle</span>
-            </button>
-        `;
-        cont.appendChild(div);
-        if (existingId === null) window.syncSetupToState();
-    };
-
-    window.startGame = () => {
-        window.syncSetupToState();
-        if (players.length < 2) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Not enough players',
-                text: 'Please add at least 2 players to start.',
-                confirmButtonColor: 'var(--primary)'
-            });
-            return;
-        }
-        gameState = 'PLAYING'; currentTurnIdx = 0; triggerSave(); render();
-    };
-
-    window.switchTab = (t) => {
-        const tabs = ['BOARD', 'LOG', 'NEW'];
-        tabs.forEach(id => {
-            const el = document.getElementById('tab-' + id);
-            if (el) {
-                el.classList.toggle('hidden', id !== t);
-                if (id === t) {
-                    el.classList.remove('animate-in');
-                    void el.offsetWidth; // Trigger reflow
-                    el.classList.add('animate-in');
-                }
-            }
-        });
-        
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            if (btn.id === 'tabBtn' + t.charAt(0) + t.slice(1).toLowerCase()) {
-                btn.classList.add('active');
-            } else if (btn.id.startsWith('tabBtn')) {
-                btn.classList.remove('active');
-            }
-        });
-
-        if (t === 'NEW' && editingIndex === null) {
-            tempSugg.suggesterId = players[currentTurnIdx]?.id || null;
-            const rec = getRecommendation();
-            tempSugg.suspect = rec.suspect || CATEGORIES.SUSPECTS[0];
-            tempSugg.weapon = rec.weapon || CATEGORIES.WEAPONS[0];
-            tempSugg.room = rec.room || CATEGORIES.ROOMS[0];
-            window.updateFormSelection();
-        }
-    };
-
-    window.adjustTurn = (delta) => {
-        currentTurnIdx = (currentTurnIdx + delta + players.length) % players.length;
-        render(); triggerSave();
-    };
-
-    window.toggleManualOverride = (cardName, playerId) => {
-        if (!manualOverrides[cardName]) manualOverrides[cardName] = {};
-        const cur = manualOverrides[cardName][playerId] || 0;
-        let next = 0;
-        if (cur === 0) next = 1;
-        else if (cur === 1) next = -1;
-        else next = 0;
-        
-        if (next === 0) delete manualOverrides[cardName][playerId];
-        else manualOverrides[cardName][playerId] = next;
-        triggerSave(); render();
-    };
-
-    window.submitSuggestion = () => {
-        const s = { ...tempSugg, timestamp: Date.now() };
-        if (editingIndex !== null) { suggestions[editingIndex] = s; editingIndex = null; }
-        else { suggestions.push(s); currentTurnIdx = (currentTurnIdx + 1) % players.length; }
-        triggerSave(); render(); window.switchTab('BOARD');
-        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, suspect: '', weapon: '', room: '', showerId: -1, cardShown: '', type: 'SUGGESTION' };
-        document.getElementById('cancelEditBtn').classList.add('hidden');
-        document.getElementById('submitBtn').innerText = 'Log Result';
-    };
-
-    window.skipTurn = () => {
-        suggestions.push({ type: 'SKIP', suggesterId: players[currentTurnIdx].id, timestamp: Date.now() });
-        currentTurnIdx = (currentTurnIdx + 1) % players.length;
-        triggerSave(); render(); window.switchTab('BOARD');
-    };
-
-    window.editSuggestion = (index) => {
-        editingIndex = index;
-        const s = suggestions[index];
-        tempSugg = { ...s };
-        window.switchTab('NEW');
-        document.getElementById('submitBtn').innerText = 'Update';
-        document.getElementById('cancelEditBtn').classList.remove('hidden');
-        window.updateFormSelection();
-    };
-
-    window.cancelEdit = () => {
-        editingIndex = null;
-        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, suspect: '', weapon: '', room: '', showerId: -1, cardShown: '', type: 'SUGGESTION' };
-        document.getElementById('submitBtn').innerText = 'Log Result';
-        document.getElementById('cancelEditBtn').classList.add('hidden');
-        window.switchTab('LOG');
-    };
-
-    window.deleteSuggestion = (index) => {
-        Swal.fire({
-            title: 'Delete log?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: 'var(--danger)',
-            cancelButtonColor: 'var(--text-muted)',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                suggestions.splice(index, 1);
-                triggerSave();
-                render();
-            }
-        });
-    };
-
-    window.updatePlayerName = (id, v) => { 
-        const p = players.find(x => x.id === String(id));
-        if (p) p.name = v; triggerSave(); 
-    };
-
-    window.resetGame = () => { 
-        Swal.fire({
-            title: 'Reset entire session?',
-            text: "All progress and history will be cleared.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: 'var(--danger)',
-            cancelButtonColor: 'var(--text-muted)',
-            confirmButtonText: 'Yes, reset it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
-                const cont = document.getElementById('playerInputsContainer');
-                if (cont) cont.innerHTML = ''; 
-                localStorage.removeItem(STORAGE_KEY);
-                render();
-            }
-        });
-    };
-
-    window.updateFormSelection = () => {
-        const fillGrid = (id, list, k) => {
-            const el = document.getElementById(id);
-            if (el) el.innerHTML = list.map(i => `<button class="btn-option ${String(tempSugg[k]) === String(i.id||i) ? 'active' : ''}" onclick="window.setSuggVal('${k}', '${i.id||i}')">${i.name||i}</button>`).join('');
-        };
-        fillGrid('suggesterOptions', players, 'suggesterId');
-        fillGrid('suspectOptions', CATEGORIES.SUSPECTS, 'suspect');
-        fillGrid('weaponOptions', CATEGORIES.WEAPONS, 'weapon');
-        fillGrid('roomOptions', CATEGORIES.ROOMS, 'room');
-        const showEl = document.getElementById('showerOptions');
-        if (showEl) {
-            let html = `<button class="btn-option ${tempSugg.showerId === -1 ? 'active' : ''}" onclick="window.setSuggVal('showerId', -1)">No One</button>`;
-            players.forEach(p => { if (String(p.id) !== String(tempSugg.suggesterId)) html += `<button class="btn-option ${String(tempSugg.showerId) === String(p.id) ? 'active' : ''}" onclick="window.setSuggVal('showerId', '${p.id}')">${p.name}</button>`; });
-            showEl.innerHTML = html;
-        }
-        const spec = document.getElementById('specificCardSection');
-        if (spec) {
-            if (tempSugg.showerId !== -1) {
-                spec.classList.remove('hidden');
-                const cards = [tempSugg.suspect, tempSugg.weapon, tempSugg.room].filter(Boolean);
-                document.getElementById('shownCardOptions').innerHTML = `<button class="btn-option ${tempSugg.cardShown === '' ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '')">Unknown</button>` + cards.map(c => `<button class="btn-option ${tempSugg.cardShown === c ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '${c}')">${c}</button>`).join('');
-            } else { spec.classList.add('hidden'); tempSugg.cardShown = ''; }
-        }
-    };
-
-    // --- Deductions ---
-    function calculateDeductions() {
-        if (!players.length) return;
-        ALL_CARDS.forEach(card => {
-            gameDeductionMatrix[card] = {};
-            players.forEach(p => {
-                const isMe = players[0].id === p.id;
-                const manual = manualOverrides[card]?.[p.id] || 0;
-                if (manual !== 0) gameDeductionMatrix[card][p.id] = manual;
-                else if (isMe) gameDeductionMatrix[card][p.id] = myCards.includes(card) ? 1 : -1;
-                else gameDeductionMatrix[card][p.id] = myCards.includes(card) ? -1 : 0;
-            });
-        });
-
-        const loop = () => {
-            let changed = false;
-            suggestions.filter(s => s.type === 'SUGGESTION').forEach(s => {
-                const cards = [s.suspect, s.weapon, s.room];
-                const suggIdx = players.findIndex(p => p.id === String(s.suggesterId));
-                const showerIdx = s.showerId === -1 ? -1 : players.findIndex(p => p.id === String(s.showerId));
-                if (suggIdx === -1) return;
-                let curIdx = (suggIdx + 1) % players.length;
-                const endIdx = s.showerId === -1 ? suggIdx : showerIdx;
-                while (curIdx !== endIdx) {
-                    const pId = players[curIdx].id;
-                    cards.forEach(c => { if (gameDeductionMatrix[c][pId] !== -1) { gameDeductionMatrix[c][pId] = -1; changed = true; } });
-                    curIdx = (curIdx + 1) % players.length;
-                }
-                if (s.cardShown && s.showerId !== -1) { if (gameDeductionMatrix[s.cardShown][s.showerId] !== 1) { gameDeductionMatrix[s.cardShown][s.showerId] = 1; changed = true; } }
-                if (s.showerId !== -1 && !s.cardShown) {
-                    const unknowns = cards.filter(c => gameDeductionMatrix[c][s.showerId] === 0);
-                    const hasOne = cards.some(c => gameDeductionMatrix[c][s.showerId] === 1);
-                    if (!hasOne && unknowns.length === 1) { gameDeductionMatrix[unknowns[0]][s.showerId] = 1; changed = true; }
-                }
-            });
-            ALL_CARDS.forEach(c => {
-                const owner = players.find(p => gameDeductionMatrix[c][p.id] === 1);
-                if (owner) players.forEach(p => { if (p.id !== owner.id && gameDeductionMatrix[c][p.id] !== -1) { gameDeductionMatrix[c][p.id] = -1; changed = true; } });
-            });
-            players.forEach(p => {
-                const confirmed = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1);
-                const potential = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] !== -1);
-                if (p.cardCount > 0) {
-                    if (confirmed.length === p.cardCount) ALL_CARDS.forEach(c => { if (gameDeductionMatrix[c][p.id] === 0) { gameDeductionMatrix[c][p.id] = -1; changed = true; } });
-                    else if (potential.length === p.cardCount) potential.forEach(c => { if (gameDeductionMatrix[c][p.id] === 0) { gameDeductionMatrix[c][p.id] = 1; changed = true; } });
-                }
-            });
-            Object.values(CATEGORIES).forEach(items => {
-                const ruledOut = items.filter(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
-                if (ruledOut.length === 0) {
-                    const possible = items.filter(c => !players.some(p => gameDeductionMatrix[c][p.id] === 1));
-                    if (possible.length === 1) players.forEach(p => { if (gameDeductionMatrix[possible[0]][p.id] !== -1) { gameDeductionMatrix[possible[0]][p.id] = -1; changed = true; } });
-                }
-            });
-            return changed;
-        };
-        let limit = 40; while(loop() && limit-- > 0);
-    }
-
-    function getRecommendation() {
-        if (!players.length) return { allFound: false };
-        const findSol = (list) => list.find(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
-        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
-        const findBest = (list) => {
-            let best = list[0], maxU = -1;
-            list.forEach(c => { if (!myCards.includes(c)) { let u = players.filter((p, i) => i !== 0 && gameDeductionMatrix[c][p.id] === 0).length; if (u > maxU) { maxU = u; best = c; } } });
-            return best;
-        };
-        return { suspect: sol.suspect || findBest(CATEGORIES.SUSPECTS), weapon: sol.weapon || findBest(CATEGORIES.WEAPONS), room: sol.room || findBest(CATEGORIES.ROOMS), allFound: !!(sol.suspect && sol.weapon && sol.room) };
-    }
-
-    // --- UI Render ---
     function render() {
-        const setupView = document.getElementById('setupView');
-        const playView = document.getElementById('playView');
-
-        if (gameState === 'SETUP') {
-            if (setupView) setupView.classList.remove('hidden');
-            if (playView) playView.classList.add('hidden');
+        if (state.view === 'SETUP') {
+            document.getElementById('setupView').classList.remove('hidden');
+            document.getElementById('playView').classList.add('hidden');
             renderSetup();
         } else {
-            if (setupView) setupView.classList.add('hidden');
-            if (playView) playView.classList.remove('hidden');
-            calculateDeductions();
-            document.getElementById('currentTurnNameDisplay').innerText = players[currentTurnIdx]?.name || 'Unknown';
-            document.getElementById('turnStatusDot').style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
-            renderBoard(); renderLog();
+            document.getElementById('setupView').classList.add('hidden');
+            document.getElementById('playView').classList.remove('hidden');
+            renderBoard();
         }
     }
 
     function renderSetup() {
-        const grid = document.getElementById('setupCardsGrid');
-        grid.innerHTML = '';
-        Object.entries(CATEGORIES).forEach(([cat, items]) => {
-            const h3 = document.createElement('h3');
-            h3.style.cssText = 'width:100%; font-size:10px; margin-top:16px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;';
-            h3.innerText = cat; grid.appendChild(h3);
-            items.forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = `card-pill ${myCards.includes(item) ? 'selected' : ''}`;
-                btn.innerText = item;
-                btn.onclick = () => { myCards = myCards.includes(item) ? myCards.filter(c => c !== item) : [...myCards, item]; triggerSave(); renderSetup(); };
-                grid.appendChild(btn);
+        const list = document.getElementById('playerList');
+        list.innerHTML = state.players.map(p => `
+            <div class="player-row">
+                <input type="text" value="${p.name}" onchange="updatePlayer('${p.id}', 'name', this.value)">
+                <span class="section-label" style="margin:0">Hand Size:</span>
+                <input type="number" class="card-count" value="${p.cards}" onchange="updatePlayer('${p.id}', 'cards', this.value)">
+                <span class="material-symbols-outlined" style="color:var(--acc); cursor:pointer; font-size:24px" onclick="removePlayer('${p.id}')">remove_circle</span>
+            </div>
+        `).join('');
+
+        const hand = document.getElementById('handGrid');
+        hand.innerHTML = '';
+        Object.entries(state.categories).forEach(([cat, cards]) => {
+            const h = document.createElement('div');
+            h.innerHTML = `<span class="section-label">${cat}</span>`;
+            const grid = document.createElement('div');
+            grid.className = 'choice-grid';
+            grid.style.marginBottom = '24px';
+            cards.forEach(c => {
+                const active = state.myHand.includes(c.name);
+                grid.innerHTML += `<div class="choice-chip ${active ? 'active' : ''}" onclick="toggleHand('${c.name}')"><span class="emoji">${c.emoji}</span><span>${c.name}</span></div>`;
             });
+            hand.appendChild(h);
+            hand.appendChild(grid);
         });
-        if (!document.getElementById('playerInputsContainer').children.length) {
-            if (players.length) players.forEach(p => window.addPlayerInput(p.name, p.cardCount, p.id));
-            else { window.addPlayerInput('Me', 6); window.addPlayerInput('Player 2', 6); window.addPlayerInput('Player 3', 6); }
-        }
     }
 
     function renderBoard() {
-        const findSol = (list) => list.find(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
-        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
-        const rec = getRecommendation();
-        const recText = document.getElementById('recommendationText');
-        if (currentTurnIdx === 0) document.getElementById('recommendationHeader').innerText = "Recommended for you";
-        else document.getElementById('recommendationHeader').innerText = "Investigation Strategy";
-        recText.innerHTML = rec.allFound ? `<span class="sugg-chip" style="background:rgba(16,185,129,0.2); color:var(--success);">CASE SOLVED!</span>` : `<span class="sugg-chip">${rec.suspect}</span> <span class="sugg-chip">${rec.weapon}</span> <span class="sugg-chip">${rec.room}</span>`;
-        document.getElementById('solutionBanner').innerHTML = ['suspect', 'weapon', 'room'].map(k => `<div class="solution-card ${sol[k] ? 'found' : ''}"><div class="solution-label">${k}</div><div class="solution-value">${sol[k] || '?'}</div></div>`).join('');
-        document.getElementById('tableHeader').innerHTML = '<th>Card</th>' + players.map(p => {
-            const confirmed = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1).length;
-            return `<th><div class="header-cell-content"><input type="text" class="header-edit" value="${p.name}" oninput="window.updatePlayerName('${p.id}', this.value)"><div class="card-count-indicator">${confirmed}/${p.cardCount}</div></div></th>`;
-        }).join('');
-        const body = document.getElementById('tableBody'); body.innerHTML = '';
-        Object.entries(CATEGORIES).forEach(([cat, items]) => {
-            body.innerHTML += `<tr class="category-row"><td colspan="${players.length+1}">${cat}</td></tr>`;
-            items.forEach(item => {
-                const isSol = Object.values(sol).includes(item);
-                const isRec = currentTurnIdx === 0 && [rec.suspect, rec.weapon, rec.room].includes(item);
-                let row = `<tr class="${isSol ? 'row-found' : ''} ${isRec ? 'row-recommended' : ''}"><td>${item}</td>`;
-                players.forEach(p => {
-                    const s = gameDeductionMatrix[item][p.id];
-                    const icon = s === 1 ? 'check_circle' : (s === -1 ? 'cancel' : 'help_outline');
-                    const man = manualOverrides[item]?.[p.id];
-                    row += `<td class="deduction-cell ${man === 1 ? 'manual-yes' : (man === -1 ? 'manual-no' : '')}" onclick="window.toggleManualOverride('${item}', '${p.id}')"><div class="${s === 1 ? 'cell-yes' : (s === -1 ? 'cell-no' : 'cell-unknown')}"><span class="material-icons">${icon}</span></div></td>`;
+        const matrix = solve();
+        const p = state.players[state.turnIdx];
+        document.getElementById('activePlayerName').innerText = p.name;
+        
+        // Handle Privacy Mode UI State
+        const pt = document.getElementById('privacyToggle');
+        const icon = state.privacy ? 'visibility_off' : 'visibility';
+        pt.innerHTML = `<span class="material-symbols-outlined">${icon}</span>`;
+        pt.classList.toggle('active', state.privacy);
+
+        // Apply Privacy Blur
+        ['solutionShelf', 'recBanner', 'deductionTable'].forEach(id => {
+            document.getElementById(id).classList.toggle('privacy-blur', state.privacy);
+        });
+
+        // Add/Remove Privacy Overlays
+        ['solutionWrapper', 'recWrapper', 'matrixWrapper'].forEach(id => {
+            const wrap = document.getElementById(id);
+            const existing = wrap.querySelector('.privacy-overlay');
+            if (state.privacy && !existing) {
+                const overlay = document.createElement('div');
+                overlay.className = 'privacy-overlay';
+                overlay.innerHTML = `
+                    <span class="material-symbols-outlined" style="font-size:32px; margin-bottom:8px">lock</span>
+                    <span style="font-weight:800; font-size:0.8rem">SENSITIVE DATA HIDDEN</span>
+                    <span style="font-size:0.6rem; opacity:0.7">Tap the eye icon to reveal</span>
+                `;
+                wrap.appendChild(overlay);
+            } else if (!state.privacy && existing) {
+                existing.remove();
+            }
+        });
+
+        const shelf = document.getElementById('solutionShelf');
+        shelf.innerHTML = '';
+        Object.entries(state.categories).forEach(([cat, list]) => {
+            const solName = list.map(i => i.name).find(c => state.players.every(p => matrix[c] && matrix[c][p.id] === -1));
+            const solData = solName ? getCardByName(solName) : null;
+            shelf.innerHTML += `<div class="glass solution-item ${solData ? 'solved' : ''}"><span class="section-label" style="font-size:0.6rem; margin-bottom:8px">${cat.slice(0,-1)}</span><span class="emoji">${solData ? solData.emoji : '🔎'}</span><span class="val">${solData ? solData.name : 'Unknown'}</span></div>`;
+        });
+
+        const getBestCard = (cards) => {
+            return cards.map(c => {
+                const utility = state.players.slice(1).filter(p => matrix[c.name][p.id] === 0).length;
+                const isSolution = state.players.every(p => matrix[c.name][p.id] === -1);
+                const score = isSolution ? -1 : utility;
+                return { ...c, score };
+            }).sort((a,b) => b.score - a.score)[0];
+        };
+
+        const recContainer = document.getElementById('recContainer');
+        const bestSuspect = getBestCard(state.categories.SUSPECTS);
+        const bestWeapon = getBestCard(state.categories.WEAPONS);
+        const bestRoom = getBestCard(state.categories.ROOMS);
+
+        recContainer.innerHTML = [bestSuspect, bestWeapon, bestRoom].map(c => `
+            <div class="rec-card" onclick="useRecommendation('${bestSuspect.name}', '${bestWeapon.name}', '${bestRoom.name}')">
+                <span class="emoji">${c.emoji}</span>
+                <span class="name">${c.name}</span>
+                <span class="utility">${c.score > 0 ? `+${c.score} Targets` : 'Known'}</span>
+            </div>
+        `).join('');
+
+        const head = document.getElementById('tableHead');
+        head.innerHTML = '<th>Matrix</th>' + state.players.map(p => `<th>${p.name}</th>`).join('');
+        const body = document.getElementById('tableBody');
+        body.innerHTML = '';
+        Object.entries(state.categories).forEach(([cat, list]) => {
+            body.innerHTML += `<tr><td colspan="${state.players.length+1}" style="background:var(--subtle); font-size:0.65rem; text-transform:uppercase; font-weight:900; color:var(--p); padding:10px 14px">${cat}</td></tr>`;
+            list.forEach(c => {
+                const isSol = state.players.every(p => matrix[c.name] && matrix[c.name][p.id] === -1);
+                let row = `<tr style="${isSol ? 'background:rgba(16,185,129,0.04)' : ''}"><td><div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.2rem">${c.emoji}</span><span>${c.name}</span></div></td>`;
+                state.players.forEach(p => {
+                    const val = matrix[c.name][p.id];
+                    const icon = val === 1 ? 'check_circle' : (val === -1 ? 'cancel' : 'help_outline');
+                    row += `<td class="status-cell ${val === 1 ? 'confirmed' : (val === -1 ? 'ruled-out' : '')}" onclick="toggleManual('${c.name}', '${p.id}')"><span class="material-symbols-outlined">${icon}</span></td>`;
                 });
                 body.innerHTML += row + '</tr>';
             });
         });
+        renderLogs();
     }
 
-    function renderLog() {
-        const cont = document.getElementById('logContainer');
-        if (!suggestions.length) return cont.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px; font-weight:700;">No history logged yet.</p>`;
-        cont.innerHTML = suggestions.map((s, idx) => {
-            const time = s.timestamp ? new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-            const p = players.find(x => x.id === String(s.suggesterId))?.name || 'Someone';
-            if (s.type === 'SKIP') return `<div class="log-item animate-in"><div class="log-header"><div class="log-who-wrap"><div class="log-who">${p} skipped turn</div><div class="log-timestamp">${time}</div></div><div class="log-actions"><button class="btn-log-action delete" onclick="window.deleteSuggestion(${idx})"><span class="material-icons">delete_outline</span></button></div></div></div>`;
-            const sh = s.showerId === -1 ? 'No one' : players.find(x => x.id === String(s.showerId))?.name || 'Someone';
-            return `<div class="log-item animate-in"><div class="log-header"><div class="log-who-wrap"><div class="log-who">${p} inquired:</div><div class="log-timestamp">${time}</div></div><div class="log-actions"><button class="btn-log-action" onclick="window.editSuggestion(${idx})"><span class="material-icons">edit</span></button><button class="btn-log-action delete" onclick="window.deleteSuggestion(${idx})"><span class="material-icons">delete_outline</span></button></div></div><div class="log-tag-group"><span class="log-badge">${s.suspect}</span><span class="log-badge">${s.weapon}</span><span class="log-badge">${s.room}</span></div><div class="log-result">${sh} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div></div>`;
+    function togglePrivacy() {
+        state.privacy = !state.privacy;
+        render();
+    }
+
+    function useRecommendation(s, w, r) {
+        if (state.privacy) return;
+        switchTab('NEW');
+        tempEntry.suspect = s;
+        tempEntry.weapon = w;
+        tempEntry.room = r;
+        updateFormUI();
+    }
+
+    function solve() {
+        const matrix = {};
+        const allCards = getAllCardNames();
+        allCards.forEach(c => {
+            matrix[c] = {};
+            state.players.forEach(p => {
+                const manual = state.manual[c]?.[p.id];
+                if (manual) matrix[c][p.id] = manual;
+                else if (p.id === state.players[0].id) matrix[c][p.id] = state.myHand.includes(c) ? 1 : -1;
+                else matrix[c][p.id] = state.myHand.includes(c) ? -1 : 0;
+            });
+        });
+
+        let changed = true;
+        let limit = 25;
+        while (changed && limit-- > 0) {
+            changed = false;
+            state.logs.forEach(log => {
+                if (log.type === 'INQUIRY') {
+                    const cards = [log.suspect, log.weapon, log.room];
+                    const sIdx = state.players.findIndex(p => p.id === log.suggesterId);
+                    const shIdx = log.showerId ? state.players.findIndex(p => p.id === log.showerId) : -1;
+                    if (sIdx !== -1) {
+                        let cur = (sIdx + 1) % state.players.length;
+                        const end = log.showerId ? shIdx : sIdx;
+                        while (cur !== end) {
+                            cards.forEach(c => { if (matrix[c] && matrix[c][state.players[cur].id] !== -1) { matrix[c][state.players[cur].id] = -1; changed = true; } });
+                            cur = (cur + 1) % state.players.length;
+                        }
+                    }
+                    if (log.cardShown && log.showerId && matrix[log.cardShown]) { if (matrix[log.cardShown][log.showerId] !== 1) { matrix[log.cardShown][log.showerId] = 1; changed = true; } }
+                }
+            });
+            allCards.forEach(c => {
+                const owner = state.players.find(p => matrix[c][p.id] === 1);
+                if (owner) state.players.forEach(p => { if (p.id !== owner.id && matrix[c][p.id] !== -1) { matrix[c][p.id] = -1; changed = true; } });
+            });
+            Object.values(state.categories).forEach(list => {
+                const names = list.map(i => i.name);
+                const potential = names.filter(c => !state.players.some(p => matrix[c][p.id] === 1));
+                if (potential.length === 1) state.players.forEach(p => { if (matrix[potential[0]][p.id] !== -1) { matrix[potential[0]][p.id] = -1; changed = true; } });
+            });
+        }
+        return matrix;
+    }
+
+    function renderLogs() {
+        const list = document.getElementById('logList');
+        if (state.logs.length === 0) return list.innerHTML = `<div style="text-align:center; padding:60px; opacity:0.3">No Records Found</div>`;
+        list.innerHTML = state.logs.map((l, i) => {
+            const isAcc = l.type === 'ACCUSATION';
+            return `<div class="glass log-card fade-in ${isAcc ? 'log-acc' : ''}">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px"><span class="section-label" style="color:var(${isAcc ? '--acc' : '--p'})">${isAcc ? 'FAILED ACCUSATION' : 'INVESTIGATION'}</span><span class="material-symbols-outlined" style="cursor:pointer; font-size:18px" onclick="deleteLog(${i})">delete</span></div>
+                <div style="font-weight:800; margin-bottom:8px">${l.suspect}, ${l.weapon}, ${l.room}</div>
+                <div style="font-size:0.75rem; opacity:0.7">${isAcc ? 'Confirmed incorrect.' : `${state.players.find(x => x.id === l.showerId)?.name || 'None'} showed a card.`}</div>
+            </div>`;
         }).reverse().join('');
     }
 
-    window.onload = loadState;
+    function addPlayer() { state.players.push({ id: Date.now().toString(), name: `Detective ${state.players.length + 1}`, cards: 6 }); renderSetup(); }
+    function removePlayer(id) { state.players = state.players.filter(p => p.id !== id); renderSetup(); }
+    function startGame() { if (state.players.length < 2) return Swal.fire('Team Required', 'Add at least 2 players.', 'info'); state.view = 'PLAYING'; state.turnIdx = 0; save(); render(); }
+    function switchTab(tab) { ['BOARD', 'LOG', 'NEW'].forEach(t => { document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab); document.getElementById(`nav-${t}`).classList.toggle('active', t === tab); }); if (tab === 'NEW') prepareForm(); }
+    function toggleTheme() { state.mode = state.mode === 'light' ? 'dark' : 'light'; document.body.classList.toggle('dark-mode'); save(); }
+    function toggleCardEditor() { const editor = document.getElementById('cardEditor'); editor.classList.toggle('hidden'); if (!editor.classList.contains('hidden')) renderCardEditor(); }
+    function renderCardEditor() {
+        const content = document.getElementById('editorContent'); content.innerHTML = '';
+        Object.entries(state.categories).forEach(([catKey, items]) => {
+            const h = document.createElement('div'); h.innerHTML = `<span class="section-label" style="margin-top:20px">${catKey}</span>`; content.appendChild(h);
+            items.forEach((item, idx) => {
+                content.innerHTML += `<div class="card-editor-row"><input type="text" value="${item.emoji}" onchange="updateCard('${catKey}', ${idx}, 'emoji', this.value)" style="text-align:center"><input type="text" value="${item.name}" onchange="updateCard('${catKey}', ${idx}, 'name', this.value)"><button class="icon-btn" onclick="removeCard('${catKey}', ${idx})" style="width:100%; height:100%; color:var(--acc)"><span class="material-symbols-outlined">delete</span></button></div>`;
+            });
+            const addBtn = document.createElement('button'); addBtn.className = 'btn btn-subtle'; addBtn.style.padding = '10px'; addBtn.innerHTML = `<span class="material-symbols-outlined">add</span> Add ${catKey.slice(0,-1)}`;
+            addBtn.onclick = () => { state.categories[catKey].push({ name: 'New Item', emoji: '❓' }); renderCardEditor(); };
+            content.appendChild(addBtn);
+        });
+    }
+
+    function updateCard(cat, idx, key, val) { const oldName = state.categories[cat][idx].name; state.categories[cat][idx][key] = val; if (key === 'name') { if (state.myHand.includes(oldName)) state.myHand = state.myHand.map(n => n === oldName ? val : n); if (state.manual[oldName]) { state.manual[val] = state.manual[oldName]; delete state.manual[oldName]; } } save(); }
+    function removeCard(cat, idx) { state.categories[cat].splice(idx, 1); renderCardEditor(); save(); }
+    function toggleHand(n) { state.myHand = state.myHand.includes(n) ? state.myHand.filter(c => c !== n) : [...state.myHand, n]; renderSetup(); }
+    function updatePlayer(id, k, v) { const p = state.players.find(x => x.id === id); if (p) p[k] = k === 'cards' ? parseInt(v) : v; save(); }
+    function toggleManual(c, p) { if (!state.manual[c]) state.manual[c] = {}; state.manual[c][p] = state.manual[c][p] === 1 ? -1 : (state.manual[c][p] === -1 ? 0 : 1); save(); render(); }
+    function deleteLog(i) { state.logs.splice(i, 1); save(); render(); }
+    function adjustTurn(d) { state.turnIdx = (state.turnIdx + d + state.players.length) % state.players.length; render(); }
+    function resetGame() { Swal.fire({ title: 'Reset Case?', text: 'All data will be erased.', icon: 'warning', showCancelButton: true, confirmButtonColor: 'var(--acc)', confirmButtonText: 'Reset' }).then(r => { if (r.isConfirmed) { localStorage.removeItem('clue_pro_ultra_state'); location.reload(); } }); }
+    
+    function prepareForm() { tempEntry = { ...tempEntry, type: 'INQUIRY', suggesterId: state.players[state.turnIdx].id }; if (!tempEntry.suspect) { tempEntry.suspect = state.categories.SUSPECTS[0].name; tempEntry.weapon = state.categories.WEAPONS[0].name; tempEntry.room = state.categories.ROOMS[0].name; } updateFormUI(); }
+    function updateFormUI() {
+        const fill = (id, list, key, isPlayer = false, isCard = false) => {
+            const el = document.getElementById(id); el.innerHTML = '';
+            list.forEach(i => { const val = isPlayer ? i.id : (isCard ? i.name : i); el.innerHTML += `<div class="choice-chip ${tempEntry[key] === val ? 'active' : ''}" onclick="setFormVal('${key}', '${val}')">${isCard ? `<span style="font-size:1.2rem">${i.emoji}</span>` : ''}<span>${i.name || i}</span></div>`; });
+        };
+        fill('suggesterChoices', state.players, 'suggesterId', true);
+        fill('suspectChoices', state.categories.SUSPECTS, 'suspect', false, true);
+        fill('weaponChoices', state.categories.WEAPONS, 'weapon', false, true);
+        fill('roomChoices', state.categories.ROOMS, 'room', false, true);
+        const showers = [{id: null, name: 'No One'}, ...state.players.filter(p => p.id !== tempEntry.suggesterId)];
+        fill('showerChoices', showers, 'showerId', true);
+        const cardSection = document.getElementById('cardShownSection');
+        if (tempEntry.showerId && tempEntry.showerId !== 'null') {
+            cardSection.classList.remove('hidden'); const possible = [tempEntry.suspect, tempEntry.weapon, tempEntry.room].map(n => getCardByName(n));
+            const container = document.getElementById('shownChoices'); container.innerHTML = [{name:'?', emoji:'🔎'}, ...possible].map(c => `<div class="choice-chip ${tempEntry.cardShown === (c.name==='?'?'':c.name) ? 'active' : ''}" onclick="setFormVal('cardShown', '${c.name==='?'?'':c.name}')"><span style="font-size:1.2rem">${c.emoji}</span><span>${c.name}</span></div>`).join('');
+        } else { cardSection.classList.add('hidden'); tempEntry.cardShown = ''; }
+    }
+    window.setFormVal = (k, v) => { tempEntry[k] = v === 'null' ? null : v; updateFormUI(); };
+    function submitInquiry() { state.logs.push({...tempEntry, type: 'INQUIRY', timestamp: Date.now()}); state.turnIdx = (state.turnIdx + 1) % state.players.length; save(); switchTab('BOARD'); render(); }
+    function submitFailedAccusation() { state.logs.push({...tempEntry, type: 'ACCUSATION', timestamp: Date.now()}); save(); switchTab('BOARD'); render(); }
+    function skipTurn() { state.turnIdx = (state.turnIdx + d + state.players.length) % state.players.length; save(); switchTab('BOARD'); render(); }
+    
+    window.onload = load;
 </script>
 </body>
 </html>
