@@ -2,14 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Clue Solver - Mobile Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clue Solver - Glassmorphism Edition</title>
     <!-- Google Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Chart.js for Reports -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -17,646 +15,572 @@
             --danger: #ef4444;
             --success: #10b981;
             --warning: #f59e0b;
+            --bg: #f0f2f5;
+            /* Prominent Glass Settings */
+            --card-bg: rgba(255, 255, 255, 0.45);
+            --header-bg: rgba(255, 255, 255, 0.3);
+            --border: rgba(255, 255, 255, 0.5);
+            --glass-blur: blur(24px);
             
-            /* Mobile Palette */
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --header-bg: rgba(255, 255, 255, 0.95);
-            --border: #e2e8f0;
             --text-main: #0f172a;
-            --text-muted: #64748b;
-            
-            --glass-blur: blur(12px);
-            --radius: 16px;
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
-            --nav-height: calc(60px + var(--safe-bottom));
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --text-muted: #475569;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --safe-bottom: env(safe-area-inset-bottom, 16px);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         body.dark-mode {
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --header-bg: rgba(30, 41, 59, 0.95);
-            --border: #334155;
+            --bg: #020617;
+            --card-bg: rgba(15, 23, 42, 0.5);
+            --header-bg: rgba(15, 23, 42, 0.3);
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --border: rgba(255, 255, 255, 0.15);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
-        /* SweetAlert2 Mobile Tweaks */
+        /* SweetAlert2 Glass Integration */
         .swal2-popup {
             background: var(--card-bg) !important;
+            backdrop-filter: var(--glass-blur) !important;
+            -webkit-backdrop-filter: var(--glass-blur) !important;
             border: 1px solid var(--border) !important;
-            border-radius: 24px !important;
+            border-radius: var(--radius) !important;
             color: var(--text-main) !important;
-            font-family: inherit !important;
-            width: 90% !important;
-            padding: 1.5em !important;
         }
-        .swal2-title { font-size: 1.25em !important; color: var(--text-main) !important; }
-        .swal2-html-container { font-size: 1em !important; color: var(--text-muted) !important; }
-        .swal2-actions { margin-top: 1.5em !important; }
-        .swal2-styled { border-radius: 12px !important; font-weight: 700 !important; padding: 12px 24px !important; }
+        .swal2-title, .swal2-html-container {
+            color: var(--text-main) !important;
+        }
+
+        /* Enhanced Animated Background */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            background: linear-gradient(-45deg, #e0e7ff, #f1f5f9, #fdf4ff, #e0e7ff);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            transition: opacity 0.4s ease;
+        }
+
+        body.dark-mode::before {
+            background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #020617);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        /* Floating Blobs for Glass Depth */
+        .bg-blobs {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+            filter: blur(40px);
+            border-radius: 50%;
+            animation: float 25s infinite alternate ease-in-out, colorShift 30s infinite linear;
+        }
+
+        .blob-1 { top: -10%; left: -10%; background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%); }
+        .blob-2 { bottom: -10%; right: -10%; background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%); animation-delay: -5s; }
+        .blob-3 { top: 40%; right: 10%; width: 30vw; height: 30vw; background: radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%); animation-delay: -12s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20vw, 20vh) scale(1.2); }
+        }
+
+        @keyframes colorShift {
+            0% { filter: blur(40px) hue-rotate(0deg); }
+            100% { filter: blur(40px) hue-rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes iconPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-in { animation: fadeInUp 0.4s var(--spring); }
+        .icon-pop { animation: iconPop 0.2s var(--spring); }
 
         * { 
             box-sizing: border-box; 
             margin: 0; padding: 0; 
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation; /* Improves touch response */
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-main);
-            background-color: var(--bg);
-            line-height: 1.5;
-            font-size: 16px; /* Prevents zooming on inputs in iOS */
-            padding-bottom: calc(var(--nav-height) + 20px);
-            padding-top: 10px;
+            line-height: 1.4;
+            padding-bottom: calc(90px + var(--safe-bottom));
+            font-size: 15px; 
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Subtle Background */
-        body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-            background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15), transparent 60%);
-            pointer-events: none;
-        }
-
-        .container { 
-            max-width: 100%; 
-            margin: 0 auto; 
-            padding: 0 16px; 
-        }
+        .container { max-width: 800px; margin: 0 auto; padding: 8px; }
+        @media (min-width: 768px) { .container { padding: 24px; } }
 
         .hidden { display: none !important; }
         
         .card { 
             background: var(--card-bg); 
-            border-radius: var(--radius); 
-            border: 1px solid var(--border); 
-            padding: 16px; 
-            margin-bottom: 16px; 
-            box-shadow: var(--shadow); 
-        }
-
-        h1, h2, h3 { font-weight: 800; letter-spacing: -0.02em; color: var(--text-main); }
-        h1 { font-size: 1.5rem; }
-        h2 { font-size: 1.1rem; }
-        
-        button { 
-            cursor: pointer; border: none; font-weight: 700; font-family: inherit;
-            transition: transform 0.1s; position: relative; overflow: hidden;
-        }
-        button:active { transform: scale(0.96); }
-        
-        /* App Header */
-        .app-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 16px; padding: 0 4px;
-        }
-        .header-title h1 { 
-            font-size: 24px; background: linear-gradient(135deg, var(--primary), #818cf8); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
-        }
-        .header-title p { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: -4px; }
-
-        .header-actions { display: flex; gap: 8px; }
-        .action-btn {
-            background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main);
-            width: 40px; height: 40px; border-radius: 12px; /* Larger touch target */
-            display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
-        }
-
-        /* Bottom Navigation Bar (Mobile Native Style) */
-        .nav-tabs { 
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            height: var(--nav-height);
-            background: var(--header-bg);
             backdrop-filter: var(--glass-blur);
             -webkit-backdrop-filter: var(--glass-blur);
-            border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: flex-start;
-            padding-top: 8px; z-index: 1000;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            border-radius: var(--radius); 
+            border: 1px solid var(--border); 
+            padding: 14px; 
+            margin-bottom: 12px; 
+            box-shadow: var(--shadow); 
+            transition: background-color 0.3s, border-color 0.3s, transform 0.2s var(--spring);
         }
+
+        h1, h2, h3 { font-weight: 800; letter-spacing: -0.03em; }
         
-        .tab-btn { 
-            flex: 1; background: transparent; color: var(--text-muted);
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-            padding: 0; height: 100%;
+        button { 
+            cursor: pointer; 
+            border: none; 
+            font-weight: 700; 
+            transition: all 0.25s var(--spring); 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative;
+            overflow: hidden;
         }
-        .tab-btn .material-icons { font-size: 24px; transition: all 0.2s var(--spring); }
-        .tab-btn.active { color: var(--primary); }
-        .tab-btn.active .material-icons { transform: translateY(-2px); }
-
-        /* --- REDESIGNED SETUP INPUTS --- */
-        .player-inputs { display: flex; flex-direction: column; gap: 8px; counter-reset: player-counter; }
-        .player-input-row { 
-            background: var(--bg); border: 1px solid var(--border); 
-            padding: 8px 12px; border-radius: 14px; 
-            display: grid; grid-template-columns: 32px 1fr auto auto; 
-            gap: 10px; align-items: center; 
-            counter-increment: player-counter;
-        }
+        button:active { transform: scale(0.92); opacity: 0.8; }
         
-        .player-badge { 
-            background: var(--primary); color: white; width: 32px; height: 32px; 
-            border-radius: 10px; display: flex; align-items: center; justify-content: center; 
-            font-weight: 800; font-size: 14px; box-shadow: 0 2px 5px rgba(99,102,241,0.3);
-        }
-        .player-badge::before { content: counter(player-counter); }
-        
-        .player-name-input { 
-            background: transparent; border: none; font-weight: 700; 
-            color: var(--text-main); outline: none; font-size: 15px; width: 100%;
+        .setup-header { text-align: center; margin-bottom: 20px; padding: 5px; position: relative; }
+        .setup-header h1 { font-size: 1.75rem; color: var(--text-main); background: linear-gradient(135deg, var(--primary), #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .setup-header p { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 2px; }
+
+        .header-actions {
+            position: absolute; top: 5px; right: 5px;
+            display: flex; gap: 8px;
         }
 
-        .card-counter-widget {
-            display: flex; align-items: center; gap: 4px;
-            background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 8px; padding: 2px;
+        .action-btn {
+            background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main);
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
         }
-        .btn-counter {
-            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-            background: transparent; border-radius: 6px; color: var(--text-muted);
-            font-size: 14px;
-        }
-        .btn-counter:active { background: var(--bg); color: var(--primary); }
-        .input-counter {
-            width: 24px; text-align: center; background: transparent; border: none;
-            font-weight: 800; font-size: 13px; color: var(--text-main); padding: 0;
-        }
+        .action-btn .material-icons { font-size: 18px; }
 
-        .start-turn-radio {
-            appearance: none; width: 24px; height: 24px;
-            border: 2px solid var(--border); border-radius: 50%;
-            background: var(--card-bg); display: grid; place-items: center;
-        }
-        .start-turn-radio::after {
-            content: ''; width: 12px; height: 12px; background: var(--success);
-            border-radius: 50%; transform: scale(0); transition: transform 0.2s;
-        }
-        .start-turn-radio:checked { border-color: var(--success); }
-        .start-turn-radio:checked::after { transform: scale(1); }
-
-        .btn-remove-player { 
-            width: 32px; height: 32px; border-radius: 8px; 
-            background: rgba(239, 68, 68, 0.1); color: var(--danger); 
-            display: flex; align-items: center; justify-content: center; 
-        }
-
-        /* --- REDESIGNED TURN SELECTOR --- */
-        .turn-selector-card {
-            background: var(--card-bg); border-radius: 20px;
-            padding: 16px; margin-bottom: 16px;
-            box-shadow: var(--shadow); border: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center;
-            position: relative; overflow: hidden;
-        }
-        .turn-selector-bg {
-            position: absolute; top:0; left:0; width:100%; height:4px;
-            background: linear-gradient(90deg, var(--primary), #818cf8);
-        }
-        .turn-controls {
-            display: flex; align-items: center; justify-content: space-between;
-            width: 100%; margin-top: 8px;
-        }
-        .btn-turn-nav {
-            width: 44px; height: 44px; border-radius: 14px;
-            background: var(--bg); color: var(--text-main);
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--border); font-size: 24px;
+        .btn-text-icon {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--primary);
+            padding: 10px 16px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.2s var(--spring);
         }
-        .btn-turn-nav:active { transform: scale(0.92); background: var(--border); }
-        
-        .current-turn-display { text-align: center; flex: 1; }
-        .turn-label-sm { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 1px; margin-bottom: 2px; }
-        .turn-player-name { font-size: 20px; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px; }
+        body.dark-mode .btn-text-icon { background: rgba(0, 0, 0, 0.2); }
+        .btn-text-icon:active { background: rgba(99, 102, 241, 0.1); }
 
-        /* Form Selection Grids */
-        .select-group { margin-bottom: 20px; }
-        .select-group label { 
-            display: block; font-size: 11px; font-weight: 800; 
-            color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; 
-        }
-        .select-scroll-wrap {
-            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-        }
-        /* Hide scrollbar but keep functionality */
-        .select-scroll-wrap::-webkit-scrollbar { height: 0; width: 0; display: none; }
+        .form-section { margin-bottom: 24px; }
+        .form-section h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
         
-        .btn-option { 
-            flex: 0 0 auto; /* Don't shrink */
-            padding: 12px 16px; border-radius: 12px; 
-            border: 1px solid var(--border); background: var(--bg); 
-            font-size: 14px; font-weight: 700; color: var(--text-muted); 
-            min-width: 100px; text-align: center;
-            scroll-snap-align: start;
+        .player-inputs { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        @media (min-width: 640px) { .player-inputs { grid-template-columns: repeat(2, 1fr); } }
+        
+        .player-input-row { 
+            background: rgba(255, 255, 255, 0.15); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); 
+            display: flex; gap: 8px; align-items: center; transition: background-color 0.2s;
+        }
+        body.dark-mode .player-input-row { background: rgba(0, 0, 0, 0.2); }
+        .player-input-row input[type="text"], .custom-name-input { background: transparent; border: none; font-weight: 700; outline: none; flex: 1; min-width: 0; font-size: 15px; color: var(--text-main); }
+        .player-input-row input[type="number"] { width: 40px; border: 1px solid var(--border); border-radius: 6px; padding: 4px; font-weight: 800; text-align: center; font-size: 13px; background: rgba(255, 255, 255, 0.15); color: var(--text-main); }
+        .player-badge { background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .player-badge .material-icons { font-size: 16px; }
+        
+        .btn-remove-player { background: rgba(239, 68, 68, 0.15); color: var(--danger); width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s var(--spring); }
+        .btn-remove-player .material-icons { font-size: 18px; }
+
+        .label-small { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+        .card-pill { 
+            padding: 10px 8px; border-radius: 12px; background: rgba(255, 255, 255, 0.15); 
+            border: 1px solid var(--border); font-size: 12px; font-weight: 700; text-align: center; 
+            color: var(--text-main); transition: all 0.25s var(--spring);
+        }
+        body.dark-mode .card-pill { background: rgba(0, 0, 0, 0.2); }
+        .card-pill.selected { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
+
+        .btn-start { width: 100%; padding: 16px; background: var(--text-main); color: var(--bg); border-radius: var(--radius); font-size: 1rem; margin-top: 16px; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+
+        /* Floating Navigation Tabs at Bottom */
+        .nav-tabs { 
+            display: flex; gap: 4px; background: var(--header-bg); padding: 6px; border-radius: 18px; 
+            position: fixed; 
+            bottom: calc(12px + var(--safe-bottom));
+            left: 12px; right: 12px;
+            z-index: 100; box-shadow: var(--shadow);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--border);
+        }
+        .tab-btn { 
+            flex: 1; padding: 12px 4px; border-radius: 14px; background: transparent; 
+            color: var(--text-muted); font-size: 12px; font-weight: 800; text-align: center; 
+            white-space: nowrap; transition: all 0.3s var(--spring);
+        }
+        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transform: translateY(-2px); border: 1px solid var(--border); }
+
+        /* Assistant */
+        .assistant-box { background: rgba(255, 251, 235, 0.4); border: 1px solid rgba(253, 230, 138, 0.5); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; backdrop-filter: var(--glass-blur); transition: all 0.3s; }
+        .assistant-box.my-turn { background: rgba(239, 246, 255, 0.4); border-color: rgba(191, 219, 254, 0.5); }
+        body.dark-mode .assistant-box { background: rgba(69, 26, 3, 0.3); border-color: rgba(146, 64, 14, 0.2); }
+        body.dark-mode .assistant-box.my-turn { background: rgba(30, 58, 138, 0.3); border-color: rgba(37, 99, 235, 0.2); }
+        
+        .assistant-content h4 { font-size: 9px; text-transform: uppercase; color: #b45309; letter-spacing: 0.1em; margin-bottom: 4px; }
+        body.dark-mode .assistant-content h4 { color: #fcd34d; }
+        body.dark-mode .assistant-box.my-turn h4 { color: #93c5fd; }
+
+        .sugg-chip { background: rgba(254, 243, 199, 0.5); padding: 4px 10px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(253, 230, 138, 0.3); font-weight: 800; color: #92400e; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .assistant-box.my-turn .sugg-chip { background: rgba(219, 234, 254, 0.5); border-color: rgba(191, 219, 254, 0.3); color: #1e40af; }
+
+        .turn-card { background: rgba(238, 242, 255, 0.4); border: 1px solid rgba(199, 210, 254, 0.4); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; backdrop-filter: var(--glass-blur); transition: background-color 0.3s; }
+        body.dark-mode .turn-card { background: rgba(30, 27, 75, 0.4); border-color: rgba(49, 46, 129, 0.4); }
+        .turn-label { font-size: 10px; font-weight: 900; color: var(--primary); text-transform: uppercase; }
+        .turn-name { font-weight: 800; color: #1e1b4b; font-size: 1.1rem; }
+        body.dark-mode .turn-name { color: #e0e7ff; }
+
+        .solution-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+        .solution-card { padding: 8px 4px; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); backdrop-filter: var(--glass-blur); display: flex; flex-direction: column; align-items: center; transition: all 0.4s var(--spring); }
+        .solution-card.found { border-color: var(--success); background: rgba(236, 253, 245, 0.5); transform: scale(1.05); }
+        body.dark-mode .solution-card.found { background: rgba(6, 78, 59, 0.5); }
+        .solution-label { font-size: 8px; font-weight: 900; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+        .solution-value { font-size: 0.9rem; font-weight: 800; color: var(--text-main); text-align: center; }
+        .solution-card.found .solution-value { color: #065f46; }
+        body.dark-mode .solution-card.found .solution-value { color: #34d399; }
+
+        /* Compact Glass Table */
+        .table-wrap { 
+            overflow-x: auto; background: var(--card-bg); backdrop-filter: var(--glass-blur); border-radius: var(--radius-sm); border: 1px solid var(--border); 
+            -webkit-overflow-scrolling: touch; position: relative; box-shadow: var(--shadow);
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
+        th, td { padding: 8px 6px; border-bottom: 1px solid var(--border); font-size: 13px; min-width: 55px; color: var(--text-main); transition: background-color 0.2s; }
+        th:first-child, td:first-child { 
+            min-width: 110px; width: 120px; position: sticky; left: 0; background: var(--card-bg); z-index: 10;
+            border-right: 1px solid var(--border); font-weight: 700; transition: background-color 0.2s;
+        }
+        th:first-child { z-index: 20; background: var(--header-bg); }
+        th { background: var(--header-bg); font-weight: 800; color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
+
+        .header-cell-content { display: flex; flex-direction: column; align-items: center; }
+        .header-edit { 
+            background: transparent; border: none; font-family: inherit; font-weight: 900; color: var(--text-main); 
+            font-size: 10px; text-transform: uppercase; width: 100%; text-align: center; padding: 2px 0; outline: none;
             transition: all 0.2s;
         }
-        .btn-option.active { 
-            background: var(--primary); color: white; 
-            border-color: var(--primary); 
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-            transform: scale(1.02);
-        }
-        body.dark-mode .btn-option { background: rgba(255,255,255,0.05); }
-        body.dark-mode .btn-option.active { 
-            background: var(--primary);
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-        }
+        .header-edit:focus { background: rgba(99, 102, 241, 0.1); border-radius: 4px; }
+        .card-count-indicator { font-size: 9px; color: var(--text-muted); font-weight: 700; }
 
-        /* Large Action Button */
-        .btn-main { 
-            width: 100%; padding: 18px; 
-            background: var(--text-main); color: var(--bg); 
-            border-radius: 16px; font-size: 16px; font-weight: 800;
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.15);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-secondary {
-            width: 100%; padding: 16px;
-            background: transparent; color: var(--text-muted);
-            border: 1px solid var(--border); border-radius: 16px;
-            font-size: 15px; font-weight: 700;
-        }
+        .category-row { background: var(--header-bg); font-weight: 900; font-size: 9px; text-transform: uppercase; color: var(--primary); }
+        .category-row td { padding: 4px 10px; }
 
-        /* --- REDESIGNED TABLE HEADERS --- */
-        .table-card { padding: 0; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; }
-        .table-wrap { 
-            overflow-x: auto; -webkit-overflow-scrolling: touch; 
-            max-width: 100%; position: relative; background: var(--card-bg);
-        }
-        table { border-collapse: separate; border-spacing: 0; width: 100%; }
-        
-        th, td { 
-            padding: 12px 8px; border-bottom: 1px solid var(--border); 
-            min-width: 60px; text-align: center; font-size: 14px;
-        }
-        
-        /* Sticky First Column */
-        th:first-child, td:first-child { 
-            position: sticky; left: 0; z-index: 10; 
-            background: var(--card-bg); border-right: 2px solid var(--border);
-            text-align: left; font-weight: 700; min-width: 120px; max-width: 120px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        
-        /* New Header Style */
-        thead th { 
-            position: sticky; top: 0; z-index: 20; 
-            background: var(--bg); vertical-align: bottom;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 12px;
-        }
-        thead th:first-child { z-index: 30; vertical-align: middle; color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
-
-        .header-cell-content { 
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-end; 
-            min-width: 70px;
-        }
-        .player-avatar-small {
-            width: 32px; height: 32px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--primary), #818cf8);
-            color: white; display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 14px; margin-bottom: 6px;
-            box-shadow: 0 4px 10px -2px rgba(99, 102, 241, 0.4);
-        }
-        .header-name-edit {
-            background: transparent; border: none; font-size: 11px; text-transform: uppercase; 
-            font-weight: 800; text-align: center; color: var(--text-main); width: 100%;
-            margin-bottom: 2px;
-        }
-        .card-count-badge {
-            font-size: 9px; padding: 2px 6px; background: var(--border);
-            border-radius: 6px; color: var(--text-muted); font-weight: 700;
-        }
-
-        .cell-yes { color: var(--success); font-weight: 900; font-size: 18px; }
-        .cell-no { color: var(--danger); opacity: 0.3; font-size: 16px; }
-        .cell-unknown { color: var(--text-muted); opacity: 0.2; }
+        .deduction-cell { cursor: pointer; user-select: none; transition: background 0.1s var(--spring); }
+        .deduction-cell:active { background: rgba(0, 0, 0, 0.08); }
+        .cell-yes { color: var(--success); text-align: center; }
+        .cell-yes .material-icons { font-size: 20px; animation: iconPop 0.25s var(--spring); }
+        .cell-no { color: var(--danger); text-align: center; opacity: 0.35; }
+        .cell-no .material-icons { font-size: 16px; animation: iconPop 0.25s var(--spring); }
+        .cell-unknown { text-align: center; color: #cbd5e1; }
+        .cell-unknown .material-icons { font-size: 16px; }
         
         .manual-yes { background: rgba(16, 185, 129, 0.1) !important; box-shadow: inset 0 0 0 1px var(--success); }
         .manual-no { background: rgba(239, 68, 68, 0.1) !important; box-shadow: inset 0 0 0 1px var(--danger); }
 
-        /* Stats */
-        .prob-bar-container { height: 4px; background: var(--border); border-radius: 2px; margin-top: 4px; width: 100%; overflow: hidden; }
-        .prob-bar { height: 100%; background: var(--warning); transition: width 0.5s ease; }
-        .card-row-info { display: flex; flex-direction: column; width: 100%; }
-        .card-row-name { font-size: 13px; line-height: 1.2; }
-        .card-row-meta { font-size: 9px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
-        
-        /* Location Bar */
-        .location-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--header-bg); padding: 8px 12px; border-radius: 12px;
-            margin-bottom: 12px; border: 1px solid var(--border);
-        }
-        .location-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .location-value { font-size: 13px; font-weight: 900; color: var(--primary); }
-        .btn-loc { padding: 4px 10px; border-radius: 8px; background: var(--card-bg); border: 1px solid var(--border); font-size: 11px; font-weight: 800; }
+        .row-found { background-color: rgba(16, 185, 129, 0.05) !important; }
+        .row-found td:first-child { color: #059669 !important; background-color: rgba(16, 185, 129, 0.05) !important; }
+        .row-recommended { background-color: rgba(99, 102, 241, 0.05) !important; }
+        .row-recommended td:first-child { color: #2563eb !important; border-left: 4px solid var(--primary); background-color: rgba(99, 102, 241, 0.05) !important; }
 
-        /* Log Feed */
-        .log-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
-        .log-card {
-            background: var(--card-bg); padding: 14px; border-radius: 16px;
-            border: 1px solid var(--border); box-shadow: var(--shadow);
-            position: relative;
+        /* Tag-Style Form Controls */
+        .select-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .btn-option { 
+            padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.1); 
+            font-size: 12px; text-align: center; font-weight: 700; display: flex; align-items: center; justify-content: center; 
+            min-height: 38px; color: var(--text-muted); transition: all 0.2s var(--spring); flex: 1 0 auto; max-width: calc(50% - 3px);
         }
-        .log-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
-        .log-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-        .chip-mini { 
-            font-size: 11px; padding: 4px 8px; border-radius: 6px; 
-            background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600;
-        }
-        .log-result { 
-            margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); 
-            font-size: 13px; color: var(--primary); font-weight: 700; 
-        }
-        .btn-log-del {
-            position: absolute; top: 10px; right: 10px;
-            color: var(--danger); opacity: 0.5; background: transparent; padding: 4px;
-        }
+        body.dark-mode .btn-option { background: rgba(0, 0, 0, 0.15); }
+        @media (min-width: 480px) { .btn-option { max-width: calc(33.333% - 4px); } }
+        .btn-option.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25); transform: translateY(-1px); }
 
-        /* Alert Box */
-        .alert-box {
-            background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger);
-            border-radius: 12px; padding: 12px; margin-bottom: 16px;
-            display: flex; align-items: center; gap: 12px; color: var(--danger);
+        /* Logs Tab Styling */
+        .log-item { 
+            background: var(--card-bg); backdrop-filter: var(--glass-blur); padding: 12px; border-radius: 16px; border: 1px solid var(--border); 
+            margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow);
+            transition: all 0.3s var(--spring);
         }
-        .alert-title { font-weight: 900; font-size: 13px; }
-        .alert-desc { font-size: 11px; opacity: 0.8; }
+        .log-header { display: flex; justify-content: space-between; align-items: flex-start; width: 100%; gap: 10px; }
+        .log-who { font-weight: 800; font-size: 13px; color: var(--text-main); }
+        .log-timestamp { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .log-tag-group { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0; }
+        .log-badge { font-size: 10px; padding: 4px 10px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; color: var(--text-muted); font-weight: 800; border: 1px solid var(--border); }
+        .log-result { font-size: 12px; color: var(--primary); font-weight: 800; background: rgba(99, 102, 241, 0.1); padding: 8px 12px; border-radius: 10px; align-self: flex-start; border: 1px solid var(--border); }
 
-        /* Animations */
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-in { animation: slideUp 0.3s var(--spring); }
+        .log-actions { display: flex; gap: 6px; }
+        .btn-log-action { width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.2s var(--spring); }
+        .btn-log-action .material-icons { font-size: 18px; }
+        .btn-log-action.delete { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 
-        /* Setup Grid */
-        .setup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
-        .setup-pill {
-            padding: 12px 8px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border);
-            font-size: 12px; font-weight: 700; color: var(--text-main); text-align: center;
-            transition: all 0.2s;
-        }
-        .setup-pill.selected { background: var(--primary); color: white; border-color: transparent; }
-        body.dark-mode .setup-pill.selected { box-shadow: 0 0 10px rgba(99,102,241,0.4); }
-
+        /* Revamped Saved Indicator at Top Center */
         #syncIndicator { 
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-20px); 
+            position: fixed; 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(-20px); 
             font-size: 10px; font-weight: 900; color: var(--text-muted); background: var(--card-bg); 
             padding: 8px 24px; border-radius: 20px; border: 1px solid var(--border); 
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; z-index: 1000; 
-            text-transform: uppercase; backdrop-filter: var(--glass-blur); opacity: 0; pointer-events: none;
+            text-transform: uppercase; backdrop-filter: var(--glass-blur);
+            opacity: 0;
+            pointer-events: none;
             transition: transform 0.6s var(--spring), opacity 1.5s ease-out;
         }
-        #syncIndicator.show { opacity: 1; transform: translateX(-50%) translateY(0); transition: transform 0.4s var(--spring), opacity 0.3s ease-in; }
+        #syncIndicator.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            transition: transform 0.4s var(--spring), opacity 0.3s ease-in;
+        }
         .syncing-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
-
+        .syncing .syncing-dot { background: var(--primary); animation: pulse 1s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.4; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
     </style>
 </head>
 <body class="">
 
-<div id="app" class="container">
-    
-    <!-- HEADER (Visible in Setup) -->
+<div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<div class="container" id="app">
+    <!-- SETUP VIEW -->
     <div id="setupView" class="animate-in">
-        <header class="app-header">
-            <div class="header-title">
-                <h1>Clue Solver</h1>
-                <p>Genius Edition v2</p>
-            </div>
+        <header class="setup-header">
             <div class="header-actions">
-                <button class="action-btn" onclick="window.toggleTheme()"><span class="material-icons">brightness_medium</span></button>
-                <button class="action-btn" onclick="window.toggleCustomization()"><span class="material-icons">settings</span></button>
-            </div>
-        </header>
-
-        <!-- Customization Modal -->
-        <div id="customizationCard" class="card hidden animate-in">
-            <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
-                <h2>Customize Cards</h2>
-                <button onclick="window.toggleCustomization()" class="action-btn" style="width:32px;height:32px;"><span class="material-icons" style="font-size:18px">close</span></button>
-            </div>
-            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Edit names & colors below.</p>
-            <div id="customNamesContainer" style="display:flex; flex-direction:column; gap:16px;">
-                <div id="editSuspects"></div>
-                <div id="editWeapons"></div>
-                <div id="editRooms"></div>
-            </div>
-            <div style="margin-top:20px; display:flex; gap:10px;">
-                <button class="btn-secondary" onclick="window.exportGame()"><span class="material-icons" style="font-size:16px;vertical-align:middle">content_copy</span> Export Game</button>
-                <button class="btn-secondary" onclick="window.importGame()"><span class="material-icons" style="font-size:16px;vertical-align:middle">content_paste</span> Import Game</button>
-            </div>
-            <button class="btn-main" onclick="window.toggleCustomization()" style="margin-top:10px;">Save Changes</button>
-        </div>
-
-        <div id="mainSetupCard">
-            <div class="card">
-                <h2 style="margin-bottom:12px;">Players & Cards</h2>
-                <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Add players in order. Card counts auto-distribute based on 18 standard cards.</p>
-                <div class="player-inputs" id="playerInputsContainer"></div>
-                <button onclick="window.addPlayerInput()" class="btn-secondary" style="margin-top:12px;">
-                    <span class="material-icons" style="vertical-align:middle; font-size:18px;">add</span> Add Player
+                <button class="action-btn" onclick="window.toggleCustomization()" title="Customize Cards">
+                    <span class="material-icons">settings</span>
+                </button>
+                <button class="action-btn" onclick="window.toggleTheme()" title="Toggle Theme">
+                    <span class="material-icons">brightness_medium</span>
                 </button>
             </div>
+            <h1>CLUE SOLVER</h1>
+            <p>Investigation Assistant</p>
+        </header>
 
-            <div class="card">
-                <h2 style="margin-bottom:12px;">Who are you?</h2>
-                <div style="background:var(--bg); padding:10px; border-radius:12px; border:1px solid var(--border);">
-                    <select id="myCharacterSelect" style="width:100%; border:none; background:transparent; font-weight:700; color:var(--text-main);" onchange="window.setMyCharacter(this.value)">
-                        <option value="">Select Character...</option>
-                    </select>
+        <!-- Customization Card -->
+        <div id="customizationCard" class="card hidden animate-in">
+            <div class="form-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h2>Card Configuration</h2>
+                    <button class="action-btn" onclick="window.toggleCustomization()">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div id="customNamesContainer" class="space-y-4">
+                    <!-- Suspects -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <h3 class="label-small">Suspects</h3>
+                            <button onclick="window.addCustomCard('SUSPECTS')" class="action-btn" style="width: 28px; height: 28px; color: var(--primary);">
+                                <span class="material-icons" style="font-size:20px;">add</span>
+                            </button>
+                        </div>
+                        <div id="editSuspects" class="player-inputs"></div>
+                    </div>
+                    <!-- Weapons -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <h3 class="label-small">Weapons</h3>
+                            <button onclick="window.addCustomCard('WEAPONS')" class="action-btn" style="width: 28px; height: 28px; color: var(--primary);">
+                                <span class="material-icons" style="font-size:20px;">add</span>
+                            </button>
+                        </div>
+                        <div id="editWeapons" class="player-inputs"></div>
+                    </div>
+                    <!-- Rooms -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <h3 class="label-small">Rooms</h3>
+                            <button onclick="window.addCustomCard('ROOMS')" class="action-btn" style="width: 28px; height: 28px; color: var(--primary);">
+                                <span class="material-icons" style="font-size:20px;">add</span>
+                            </button>
+                        </div>
+                        <div id="editRooms" class="player-inputs"></div>
+                    </div>
+                </div>
+                <button class="btn-start" onclick="window.toggleCustomization()">Save Configuration</button>
+            </div>
+        </div>
+
+        <div id="mainSetupCard" class="card">
+            <div class="form-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2>Investigation Team</h2>
+                    <span class="label-small">Cards</span>
+                </div>
+                <div class="player-inputs" id="playerInputsContainer"></div>
+                <div style="margin-top: 16px; display: flex; justify-content: center;">
+                    <button onclick="window.addPlayerInput()" class="btn-text-icon">
+                        <span class="material-icons">person_add</span> ADD PLAYER
+                    </button>
                 </div>
             </div>
-
-            <div class="card">
-                <h2 style="margin-bottom:12px;">Your Hand</h2>
-                <div id="setupCardsGrid" class="setup-grid"></div>
+            <div class="form-section">
+                <h2>Your Hand</h2>
+                <div id="setupCardsGrid" class="card-grid"></div>
             </div>
-
-            <button class="btn-main" onclick="window.startGame()" style="margin-bottom:40px;">
-                START GAME <span class="material-icons">arrow_forward</span>
-            </button>
+            <button class="btn-start" onclick="window.startGame()">Initialize Solver</button>
         </div>
     </div>
 
     <!-- PLAY VIEW -->
     <div id="playView" class="hidden">
-        <div style="display:flex; justify-content:flex-end; padding:0 8px 8px 0;">
-            <button class="action-btn" onclick="window.undoLastAction()" title="Undo Last" style="background:var(--card-bg);border:1px solid var(--border);">
-                <span class="material-icons" style="color:var(--text-muted);">undo</span>
-            </button>
-        </div>
-
-        <!-- BOARD TAB -->
-        <div id="tab-BOARD" class="animate-in" style="padding-bottom: 20px;">
-            <!-- Contradiction Alert -->
-            <div id="contradictionAlert" class="alert-box hidden">
-                <span class="material-icons" style="font-size:24px;">warning</span>
-                <div>
-                    <div class="alert-title">Logic Error Detected!</div>
-                    <div class="alert-desc">The clues provided are contradictory. Check History.</div>
+        <div id="tab-BOARD" class="animate-in">
+            <div class="turn-card">
+                <div class="turn-info">
+                    <div class="turn-dot" id="turnStatusDot"></div>
+                    <div>
+                        <div class="turn-label">Current Turn</div>
+                        <div class="turn-name" id="currentTurnNameDisplay">Name</div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- New Turn Selector -->
-            <div class="turn-selector-card">
-                <div class="turn-selector-bg"></div>
-                <div class="turn-label-sm">Current Turn</div>
-                <div class="turn-controls">
-                    <button class="btn-turn-nav" onclick="window.adjustTurn(-1)">
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-icon-action" onclick="window.adjustTurn(-1)" title="Prev" style="padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-main); height: 38px;">
                         <span class="material-icons">chevron_left</span>
                     </button>
-                    <div class="current-turn-display">
-                        <div class="turn-player-name" id="currentTurnNameDisplay">Player</div>
-                    </div>
-                    <button class="btn-turn-nav" onclick="window.adjustTurn(1)">
+                    <button class="btn-icon-action" onclick="window.adjustTurn(1)" title="Next" style="padding: 8px 12px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-main); height: 38px;">
                         <span class="material-icons">chevron_right</span>
                     </button>
                 </div>
             </div>
 
-            <div class="location-bar">
-                <div>
-                    <div class="location-label">My Location</div>
-                    <div class="location-value" id="myLocationDisplay" style="font-size:13px; color:var(--primary);">Hallway</div>
+            <div id="recommendationBox" class="assistant-box">
+                <div class="assistant-icon">
+                    <span class="material-icons">lightbulb</span>
                 </div>
-                <button class="btn-loc" onclick="window.promptLocationChange()">
-                    <span class="material-icons" style="font-size:14px; margin-right:4px;">edit_location</span> Set
-                </button>
-            </div>
-
-            <!-- Recommendation Alert -->
-            <div id="recommendationBox" class="card" style="background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(16,185,129,0.05)); border-color: rgba(99,102,241,0.2);">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                    <span class="material-icons" style="color:var(--primary); font-size:20px;">lightbulb</span>
-                    <h3 style="font-size:14px; margin:0;">AI Strategy</h3>
-                </div>
-                <div id="recommendationText" style="display:flex; flex-wrap:wrap; gap:6px;">Processing...</div>
-            </div>
-
-            <!-- Solution Progress -->
-            <div class="card" style="padding:12px;">
-                <div class="solution-grid" id="solutionBanner"></div>
-            </div>
-
-            <!-- Main Table -->
-            <div class="table-card">
-                <div class="table-wrap">
-                    <table id="deductionTable">
-                        <thead><tr id="tableHeader"></tr></thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
+                <div class="assistant-content">
+                    <h4 id="recommendationHeader">Strategic Inquiry</h4>
+                    <div id="recommendationText" class="assistant-suggestion">Calculating...</div>
                 </div>
             </div>
-            
-            <p style="text-align:center; font-size:11px; color:var(--text-muted); margin-bottom:20px;">
-                Tap cell to force: <span style="color:var(--success)">✔</span> / <span style="color:var(--danger)">✖</span>
+            <div class="solution-grid" id="solutionBanner"></div>
+            <div class="table-wrap">
+                <table id="deductionTable">
+                    <thead><tr id="tableHeader"></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <p style="font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 10px; font-weight: 600;">
+                💡 Tap cells to toggle manual overrides (✔ / x)
             </p>
         </div>
 
-        <!-- NEW LOG TAB (Ask/Suggest) -->
-        <div id="tab-NEW" class="hidden animate-in">
-            <h2 style="margin-bottom:16px; padding-left:4px;">Log Investigation</h2>
-            
-            <div class="card">
-                <!-- Smart Quick Fill -->
-                <div id="askSuggestions" class="hidden" style="margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
-                    <label style="font-size:10px; color:var(--success); font-weight:800; text-transform:uppercase;">AI Recommended Query</label>
-                    <div id="quickFillChips" style="display:flex; gap:8px; margin-top:8px;"></div>
-                </div>
-
-                <div class="select-group">
-                    <label>Who Asked?</label>
-                    <div class="select-scroll-wrap" id="suggesterOptions"></div>
-                </div>
-
-                <div class="select-group">
-                    <label>Suspect</label>
-                    <div class="select-scroll-wrap" id="suspectOptions"></div>
-                </div>
-
-                <div class="select-group">
-                    <label>Weapon</label>
-                    <div class="select-scroll-wrap" id="weaponOptions"></div>
-                </div>
-
-                <div class="select-group">
-                    <label>Room</label>
-                    <div class="select-scroll-wrap" id="roomOptions"></div>
-                </div>
-
-                <!-- Reveal Advice Context -->
-                <div id="myHandHelper" class="hidden" style="margin-bottom:20px;">
-                    <button onclick="window.adviseReveal()" style="width:100%; padding:12px; background:rgba(239,68,68,0.1); border:1px solid var(--danger); color:var(--danger); border-radius:12px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;">
-                        <span class="material-icons">visibility</span> Help! What do I show?
-                    </button>
-                </div>
-
-                <div class="select-group">
-                    <label>Who Showed a Card?</label>
-                    <div class="select-scroll-wrap" id="showerOptions"></div>
-                </div>
-
-                <div id="specificCardSection" class="select-group hidden animate-in">
-                    <label>Which Card? (If you saw it)</label>
-                    <div class="select-scroll-wrap" id="shownCardOptions"></div>
-                </div>
-
-                <div style="display:flex; gap:12px; margin-top:24px;">
-                    <button class="btn-secondary" id="skipTurnBtn" onclick="window.skipTurn()" style="flex:1; background:rgba(0,0,0,0.05); border:none;">Passed</button>
-                    <button class="btn-main" id="submitBtn" onclick="window.submitSuggestion()" style="flex:2;">Log Turn</button>
-                </div>
-                <button class="btn-secondary hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="margin-top:12px; color:var(--danger); border-color:var(--danger);">Cancel Edit</button>
-            </div>
-            
-            <div style="height:40px;"></div> <!-- Spacer for scrolling -->
-        </div>
-
-        <!-- LOGS TAB -->
         <div id="tab-LOG" class="hidden animate-in">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:0 4px;">
-                <h2>History</h2>
-                <button onclick="window.resetGame()" style="font-size:12px; color:var(--danger); font-weight:700; background:transparent;">RESET GAME</button>
-            </div>
-            <div id="logContainer" class="log-list"></div>
+            <div id="logContainer"></div>
         </div>
 
+        <div id="tab-NEW" class="hidden animate-in">
+            <div class="card">
+                <div class="form-group">
+                    <label>Inquirer</label>
+                    <div id="suggesterOptions" class="select-grid"></div>
+                </div>
+                <div id="inquirySection">
+                    <div class="form-group">
+                        <label>Suspect</label>
+                        <div id="suspectOptions" class="select-grid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Weapon</label>
+                        <div id="weaponOptions" class="select-grid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Room</label>
+                        <div id="roomOptions" class="select-grid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Reveal Outcome</label>
+                        <div id="showerOptions" class="select-grid"></div>
+                    </div>
+                    <div id="specificCardSection" class="form-group hidden animate-in">
+                        <label>Which card was revealed to you?</label>
+                        <div id="shownCardOptions" class="select-grid"></div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-start" id="submitBtn" onclick="window.submitSuggestion()">Log Result</button>
+                    <button class="btn-start" id="skipTurnBtn" onclick="window.skipTurn()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-muted);">Pass</button>
+                </div>
+                <button class="btn-start hidden" id="cancelEditBtn" onclick="window.cancelEdit()" style="background: rgba(255,255,255,0.1); border: 1px solid var(--border); color: var(--text-muted); margin-top: 10px;">Abort Edit</button>
+            </div>
+        </div>
+        
+        <!-- Bottom Tab Menu -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">ANALYSIS</button>
+            <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">LOGS</button>
+            <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">+ ASK</button>
+            <button class="tab-btn" onclick="window.toggleTheme()" style="flex: 0 0 40px; padding: 0;">
+                <span class="material-icons">brightness_medium</span>
+            </button>
+            <button class="tab-btn" onclick="window.resetGame()" style="color:var(--danger); flex: 0 1 auto; padding: 0 8px;">RESET</button>
+        </div>
     </div>
-
-    <!-- Bottom Navigation -->
-    <nav class="nav-tabs hidden" id="navBar">
-        <button class="tab-btn active" id="tabBtnBoard" onclick="window.switchTab('BOARD')">
-            <span class="material-icons">dashboard</span>
-            <span>Board</span>
-        </button>
-        <button class="tab-btn" id="tabBtnNew" onclick="window.switchTab('NEW')">
-            <span class="material-icons" style="font-size:28px; color:var(--primary);">add_circle</span>
-            <span style="color:var(--primary);">Log Turn</span>
-        </button>
-        <button class="tab-btn" id="tabBtnLog" onclick="window.switchTab('LOG')">
-            <span class="material-icons">history</span>
-            <span>History</span>
-        </button>
-    </nav>
-
 </div>
 
-<div id="syncIndicator"><div class="syncing-dot"></div><span id="syncText">Saved</span></div>
+<div id="syncIndicator">
+    <div class="syncing-dot"></div>
+    <span id="syncText">Saved</span>
+</div>
 
 <script type="module">
-    // State
-    let players = [], myCards = [], suggestions = [], manualOverrides = {}, gameDeductionMatrix = {}, cardProbabilities = {};
-    let gameState = 'SETUP', currentTurnIdx = 0, theme = 'light', editingIndex = null;
-    let categoryColors = {}, startTime = null, myCharacter = '', myLocation = '';
+    // --- State Management ---
+    let players = []; 
+    let myCards = []; 
+    let suggestions = []; 
+    let manualOverrides = {}; 
+    let gameDeductionMatrix = {}; 
+    let gameState = 'SETUP';
+    let currentTurnIdx = 0;
+    let isInitialLoad = true;
+    let theme = 'light';
     let tempSugg = { suggesterId: null, suspect: '', weapon: '', room: '', showerId: -1, cardShown: '', type: 'SUGGESTION' };
-    let hasContradiction = false;
+    let editingIndex = null;
 
     let CATEGORIES = {
         SUSPECTS: ['Miss Scarlett', 'Colonel Mustard', 'Dr. Orchid', 'Mr. Green', 'Mrs. Peacock', 'Professor Plum'],
@@ -664,386 +588,465 @@
         ROOMS: ['Kitchen', 'Ballroom', 'Conservatory', 'Billiard Room', 'Library', 'Study', 'Hall', 'Lounge', 'Dining Room']
     };
     
-    const DEFAULT_COLORS = {
-        'Miss Scarlett': '#ef4444', 'Colonel Mustard': '#eab308', 'Dr. Orchid': '#ec4899',
-        'Mr. Green': '#22c55e', 'Mrs. Peacock': '#3b82f6', 'Professor Plum': '#a855f7'
-    };
-    let ALL_CARDS = [];
-    const STORAGE_KEY = 'clue_solver_mobile_v3';
+    let ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
 
-    function updateAllCards() { ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS]; }
+    const STORAGE_KEY = 'clue_solver_glass_v1';
+
+    function updateAllCards() {
+        ALL_CARDS = [...CATEGORIES.SUSPECTS, ...CATEGORIES.WEAPONS, ...CATEGORIES.ROOMS];
+    }
 
     // --- Persistence ---
     function saveState() {
-        const data = { players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, theme, categories: CATEGORIES, categoryColors, startTime, myCharacter, myLocation };
+        const data = { players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, theme, categories: CATEGORIES, timestamp: Date.now() };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        
         const indicator = document.getElementById('syncIndicator');
-        if (indicator) { indicator.classList.add('show'); setTimeout(() => { indicator.classList.remove('show'); }, 1000); }
+        const text = document.getElementById('syncText');
+        if (indicator) {
+            text.innerText = 'Saving...';
+            indicator.classList.add('show');
+            indicator.classList.add('syncing');
+
+            // Wait for "saved" state
+            setTimeout(() => {
+                text.innerText = 'Saved';
+                indicator.classList.remove('syncing');
+                // Wait then fade out
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 1500);
+            }, 600);
+        }
     }
+
     function loadState() {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
             try {
                 const d = JSON.parse(raw);
-                if(d.categories) CATEGORIES = d.categories;
-                players = d.players||[]; myCards = d.myCards||[]; suggestions = d.suggestions||[];
-                manualOverrides = d.manualOverrides||{}; gameState = d.gameState||'SETUP';
-                currentTurnIdx = d.currentTurnIdx||0; theme = d.theme||'light';
-                startTime = d.startTime||Date.now(); categoryColors = d.categoryColors||{...DEFAULT_COLORS};
-                myCharacter = d.myCharacter||''; myLocation = d.myLocation||'';
-            } catch(e){}
-        } else categoryColors = {...DEFAULT_COLORS};
-        updateAllCards();
-        document.body.classList.toggle('dark-mode', theme === 'dark');
+                if (d.categories) CATEGORIES = d.categories;
+                players = d.players || [];
+                myCards = d.myCards || [];
+                suggestions = d.suggestions || [];
+                manualOverrides = d.manualOverrides || {};
+                gameState = d.gameState || 'SETUP';
+                currentTurnIdx = d.currentTurnIdx || 0;
+                theme = d.theme || 'light';
+                updateAllCards();
+                document.body.classList.toggle('dark-mode', theme === 'dark');
+            } catch (e) { console.error("Persistence error", e); }
+        }
+        isInitialLoad = false;
         render();
     }
-    function triggerSave() { setTimeout(saveState, 200); }
 
-    // --- New Features ---
-    window.undoLastAction = () => {
-        if (suggestions.length === 0) return Swal.fire({ icon: 'info', title: 'Nothing to Undo', toast: true, position: 'top' });
-        
-        Swal.fire({
-            title: 'Undo last action?',
-            text: 'This will revert the last log entry.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Undo',
-            confirmButtonColor: 'var(--primary)'
-        }).then(result => {
-            if (result.isConfirmed) {
-                const popped = suggestions.pop();
-                // If the last action was a pass, we might want to revert turn index?
-                // Clue turns are cyclical, so stepping back index is usually safe
-                if (currentTurnIdx === 0) currentTurnIdx = players.length - 1;
-                else currentTurnIdx--;
-                
-                triggerSave();
-                render();
-                Swal.fire({ icon: 'success', title: 'Undone', toast: true, position: 'top', timer: 1500, showConfirmButton: false });
-            }
-        });
-    };
-
-    window.exportGame = () => {
-        const data = JSON.stringify({ players, myCards, suggestions, manualOverrides, gameState, currentTurnIdx, categories: CATEGORIES });
-        navigator.clipboard.writeText(data).then(() => {
-            Swal.fire({ icon: 'success', title: 'Copied to Clipboard!', text: 'Share this text with your teammate.' });
-        });
-    };
-
-    window.importGame = async () => {
-        const { value: text } = await Swal.fire({
-            title: 'Paste Game Data',
-            input: 'textarea',
-            inputPlaceholder: 'Paste the exported text here...',
-            showCancelButton: true
-        });
-
-        if (text) {
-            try {
-                const d = JSON.parse(text);
-                if (d.players && d.suggestions) {
-                    players = d.players; myCards = d.myCards; suggestions = d.suggestions;
-                    manualOverrides = d.manualOverrides; gameState = d.gameState;
-                    currentTurnIdx = d.currentTurnIdx; CATEGORIES = d.categories;
-                    updateAllCards();
-                    triggerSave();
-                    render();
-                    Swal.fire({ icon: 'success', title: 'Game Loaded!' });
-                } else throw new Error();
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Invalid Data' });
-            }
-        }
-    };
-
-    // --- Deduction Engine ---
-    class SolverState {
-        constructor() { this.matrix = {}; this.disjunctions = []; this.isValid = true; }
-        init(players, allCards, myCards, manualOverrides) {
-            allCards.forEach(c => {
-                this.matrix[c] = {};
-                players.forEach(p => {
-                    const man = manualOverrides[c]?.[p.id] || 0;
-                    if (man !== 0) this.matrix[c][p.id] = man;
-                    else if (players[0].id === p.id) this.matrix[c][p.id] = myCards.includes(c) ? 1 : -1;
-                    else this.matrix[c][p.id] = myCards.includes(c) ? -1 : 0;
-                });
-            });
-        }
-        clone() { const s = new SolverState(); s.matrix = JSON.parse(JSON.stringify(this.matrix)); s.disjunctions = JSON.parse(JSON.stringify(this.disjunctions)); s.isValid = this.isValid; return s; }
-        set(c, pid, v) { 
-            if (this.matrix[c][pid] === v) return false;
-            if (this.matrix[c][pid] !== 0 && this.matrix[c][pid] !== v) { this.isValid = false; return true; }
-            this.matrix[c][pid] = v; return true;
-        }
-        get(c, pid) { return this.matrix[c][pid]; }
+    let saveTimeout;
+    function triggerSave() { 
+        if (isInitialLoad) return;
+        clearTimeout(saveTimeout); 
+        saveTimeout = setTimeout(saveState, 500); 
     }
 
-    function runDeepDeduction() {
-        if (!players.length) return;
-        const state = new SolverState(); state.init(players, ALL_CARDS, myCards, manualOverrides);
-        
-        suggestions.filter(s => s.type === 'SUGGESTION').forEach(s => {
-            const cards = [s.suspect, s.weapon, s.room];
-            const suggIdx = players.findIndex(p => p.id === String(s.suggesterId));
-            const showerIdx = s.showerId === -1 ? -1 : players.findIndex(p => p.id === String(s.showerId));
-            if (suggIdx === -1) return;
-            let curIdx = (suggIdx + 1) % players.length;
-            const endIdx = s.showerId === -1 ? suggIdx : showerIdx;
-            while (curIdx !== endIdx) { cards.forEach(c => state.set(c, players[curIdx].id, -1)); curIdx = (curIdx + 1) % players.length; }
-            if (s.showerId !== -1) {
-                if (s.cardShown) state.set(s.cardShown, String(s.showerId), 1);
-                else state.disjunctions.push({ playerId: String(s.showerId), cards: [...cards] });
-            }
-        });
-
-        function propagate(s) {
-            let changed = true;
-            while(changed && s.isValid) {
-                changed = false;
-                ALL_CARDS.forEach(c => {
-                    const owner = players.find(p => s.get(c, p.id) === 1);
-                    if (owner) players.forEach(p => { if (p.id !== owner.id && s.get(c, p.id) !== -1) if(s.set(c, p.id, -1)) changed = true; });
-                });
-                players.forEach(p => {
-                    const confirmed = ALL_CARDS.filter(c => s.get(c, p.id) === 1);
-                    const unknown = ALL_CARDS.filter(c => s.get(c, p.id) === 0);
-                    if (confirmed.length > p.cardCount) s.isValid = false;
-                    else if (confirmed.length === p.cardCount && unknown.length > 0) unknown.forEach(c => { if(s.set(c, p.id, -1)) changed = true; });
-                    else if (confirmed.length + unknown.length === p.cardCount && unknown.length > 0) unknown.forEach(c => { if(s.set(c, p.id, 1)) changed = true; });
-                    else if (confirmed.length + unknown.length < p.cardCount) s.isValid = false;
-                });
-                s.disjunctions.forEach(d => {
-                    const possible = d.cards.filter(c => s.get(c, d.playerId) !== -1);
-                    if (possible.length === 0) s.isValid = false;
-                    else if (possible.length === 1 && s.get(possible[0], d.playerId) !== 1) if(s.set(possible[0], d.playerId, 1)) changed = true;
-                });
-            }
-            return s.isValid;
-        }
-        propagate(state);
-        
-        let deepChanged = true, loops = 0;
-        while(deepChanged && state.isValid && loops < 5) {
-            deepChanged = false; loops++;
-            const unknowns = [];
-            ALL_CARDS.forEach(c => { players.forEach(p => { if (state.get(c, p.id) === 0) unknowns.push({c, pId: p.id}); }); });
-            for (let u of unknowns) {
-                const stateTrue = state.clone(); stateTrue.set(u.c, u.pId, 1);
-                if (!propagate(stateTrue)) { if (state.set(u.c, u.pId, -1)) deepChanged = true; if (!propagate(state)) break; }
-                if (state.get(u.c, u.pId) === 0) {
-                    const stateFalse = state.clone(); stateFalse.set(u.c, u.pId, -1);
-                    if (!propagate(stateFalse)) { if (state.set(u.c, u.pId, 1)) deepChanged = true; if (!propagate(state)) break; }
-                }
-            }
-        }
-
-        // Logic Check
-        hasContradiction = !state.isValid;
-
-        gameDeductionMatrix = state.matrix;
-        ALL_CARDS.forEach(c => {
-            if (players.every(p => state.get(c, p.id) === -1)) { cardProbabilities[c] = 100; return; }
-            if (players.some(p => state.get(c, p.id) === 1)) { cardProbabilities[c] = 0; return; }
-            const possibleOwners = players.filter(p => state.get(c, p.id) === 0).length;
-            cardProbabilities[c] = Math.round(100 / (1 + possibleOwners));
-        });
-    }
-
-    function getRecommendation() {
-        if (!players.length) return { allFound: false };
-        const findSol = (l) => l.find(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
-        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
-        if (sol.suspect && sol.weapon && sol.room) return { ...sol, allFound: true };
-        
-        const score = (c) => {
-            if (players.some(p => gameDeductionMatrix[c][p.id] === 1)) return -100;
-            if (players.every(p => gameDeductionMatrix[c][p.id] === -1)) return -50;
-            return 10 - players.filter(p => gameDeductionMatrix[c][p.id] === 0).length;
-        };
-        const best = (l) => [...l].sort((a,b) => score(b) - score(a))[0];
-        let bestRoom = sol.room || best(CATEGORIES.ROOMS);
-        if (myLocation && CATEGORIES.ROOMS.includes(myLocation)) bestRoom = myLocation;
-        return { suspect: sol.suspect || best(CATEGORIES.SUSPECTS), weapon: sol.weapon || best(CATEGORIES.WEAPONS), room: bestRoom, allFound: false };
-    }
-
-    function createColoredChip(text) { return categoryColors[text] ? `<span class="chip-mini" style="background:${categoryColors[text]};color:white;border:none;">${text}</span>` : `<span class="chip-mini">${text}</span>`; }
-
-    // --- UI ---
-    window.toggleTheme = () => { theme = theme === 'light' ? 'dark' : 'light'; document.body.classList.toggle('dark-mode', theme === 'dark'); triggerSave(); };
-    window.switchTab = (t) => {
-        ['BOARD', 'LOG', 'NEW'].forEach(id => {
-            const el = document.getElementById('tab-' + id);
-            if (el) el.classList.toggle('hidden', id !== t);
-        });
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.id === 'tabBtn'+t.charAt(0)+t.slice(1).toLowerCase()));
-        
-        if (t === 'NEW') {
-            if (editingIndex === null) {
-                tempSugg.suggesterId = players[currentTurnIdx]?.id || null;
-                const rec = getRecommendation();
-                if (!tempSugg.suspect) tempSugg.suspect = rec.suspect || CATEGORIES.SUSPECTS[0];
-                if (!tempSugg.weapon) tempSugg.weapon = rec.weapon || CATEGORIES.WEAPONS[0];
-                if (myLocation && CATEGORIES.ROOMS.includes(myLocation)) tempSugg.room = myLocation;
-                else if (!tempSugg.room) tempSugg.room = rec.room || CATEGORIES.ROOMS[0];
-                
-                const chip = (txt) => createColoredChip(txt).replace('class="chip-mini', 'class="chip-mini" onclick="window.quickFill(\''+txt+'\')" style="cursor:pointer;"');
-                document.getElementById('quickFillChips').innerHTML = `${chip(rec.suspect)} ${chip(rec.weapon)} ${chip(rec.room)}`;
-                document.getElementById('askSuggestions').classList.remove('hidden');
-            } else document.getElementById('askSuggestions').classList.add('hidden');
-            window.updateFormSelection();
-        }
-    };
-
-    // --- SMART SETUP LOGIC ---
-    window.recalculateCardCounts = () => {
-        if (!players.length) return;
-        const totalDistributable = 18; // Standard Clue (21 total - 3 solution)
-        const base = Math.floor(totalDistributable / players.length);
-        const remainder = totalDistributable % players.length;
-        players.forEach((p, idx) => { p.cardCount = idx < remainder ? base + 1 : base; });
-        if (gameState === 'SETUP') {
-            const rows = document.querySelectorAll('.player-input-row');
-            rows.forEach((row, idx) => { const input = row.querySelector('.input-counter'); if (input && players[idx]) input.value = players[idx].cardCount; });
-        }
-        triggerSave();
-    };
-
-    window.adjustCardCount = (pid, delta) => {
-        const p = players.find(x => x.id === pid);
-        if (p) {
-            p.cardCount = Math.max(1, p.cardCount + delta);
-            const row = document.querySelector(`.player-input-row[data-player-id="${pid}"]`);
-            if (row) row.querySelector('.input-counter').value = p.cardCount;
+    // --- Customization Logic ---
+    window.toggleCustomization = () => {
+        const main = document.getElementById('mainSetupCard');
+        const cust = document.getElementById('customizationCard');
+        if (cust.classList.contains('hidden')) {
+            main.classList.add('hidden');
+            cust.classList.remove('hidden');
+            renderCustomizationInputs();
+        } else {
+            cust.classList.add('hidden');
+            main.classList.remove('hidden');
+            updateAllCards();
+            renderSetup(); // Refresh the Setup cards grid
             triggerSave();
         }
     };
 
-    window.addPlayerInput = (n='', c=null, eid=null) => {
-        const id = eid || String(Date.now() + Math.random());
-        if (!eid) {
-            const newP = { id, name: n||'Player', cardCount: 0 }; 
-            players.push(newP); window.recalculateCardCounts(); c = newP.cardCount;
-        }
-        const div = document.createElement('div'); div.className = 'player-input-row animate-in'; div.dataset.playerId = id;
-        const isFirst = !document.querySelector('input[name="starter"]:checked') && players.length === 1;
-        div.innerHTML = `
-            <div class="player-badge"></div>
-            <input type="text" class="player-name-input" placeholder="Name" value="${n||'Player'}" oninput="window.syncSetupToState()">
-            <div class="card-counter-widget">
-                <button class="btn-counter" onclick="window.adjustCardCount('${id}', -1)">-</button>
-                <input type="text" class="input-counter" value="${c}" readonly>
-                <button class="btn-counter" onclick="window.adjustCardCount('${id}', 1)">+</button>
-            </div>
-            <input type="radio" name="starter" class="start-turn-radio" value="${id}" ${isFirst?'checked':''}>
-            <button class="btn-remove-player" onclick="window.removePlayerInput('${id}')"><span class="material-icons" style="font-size:18px">remove</span></button>
-        `;
-        document.getElementById('playerInputsContainer').appendChild(div);
+    window.addCustomCard = (key) => {
+        const defaultName = key === 'SUSPECTS' ? 'New Suspect' : (key === 'WEAPONS' ? 'New Weapon' : 'New Room');
+        CATEGORIES[key].push(defaultName);
+        renderCustomizationInputs();
     };
 
-    window.removePlayerInput = (id) => {
-        const row = document.querySelector(`.player-input-row[data-player-id="${id}"]`); if (row) row.remove();
-        players = players.filter(p => p.id !== id); window.recalculateCardCounts(); triggerSave();
+    window.removeCustomCard = (key, index) => {
+        const removedItem = CATEGORIES[key][index];
+        CATEGORIES[key].splice(index, 1);
+        
+        // Cleanup state references to the removed item
+        myCards = myCards.filter(c => c !== removedItem);
+        if (manualOverrides[removedItem]) delete manualOverrides[removedItem];
+        
+        renderCustomizationInputs();
     };
 
-    window.syncSetupToState = () => {
-        const rows = document.querySelectorAll('#playerInputsContainer .player-input-row');
-        rows.forEach(r => { const pid = r.dataset.playerId; const p = players.find(x => x.id === pid); if (p) p.name = r.querySelector('.player-name-input').value; });
+    function renderCustomizationInputs() {
+        const fill = (id, list, key) => {
+            const el = document.getElementById(id);
+            el.innerHTML = list.map((name, i) => `
+                <div class="player-input-row animate-in" style="margin-bottom:4px;">
+                    <input type="text" value="${name}" oninput="window.updateCategoryName('${key}', ${i}, this.value)">
+                    <button onclick="window.removeCustomCard('${key}', ${i})" class="btn-remove-player" title="Remove">
+                        <span class="material-icons">remove</span>
+                    </button>
+                </div>
+            `).join('');
+        };
+        fill('editSuspects', CATEGORIES.SUSPECTS, 'SUSPECTS');
+        fill('editWeapons', CATEGORIES.WEAPONS, 'WEAPONS');
+        fill('editRooms', CATEGORIES.ROOMS, 'ROOMS');
+    }
+
+    window.updateCategoryName = (key, index, value) => {
+        CATEGORIES[key][index] = value;
+    };
+
+    // --- Global Handlers ---
+    window.toggleTheme = () => {
+        theme = theme === 'light' ? 'dark' : 'light';
+        document.body.classList.toggle('dark-mode', theme === 'dark');
         triggerSave();
     };
 
-    window.startGame = () => {
-        if(players.length < 2) return Swal.fire({icon:'error', text:'Need 2+ players'});
-        const starter = document.querySelector('input[name="starter"]:checked');
-        if(starter) currentTurnIdx = players.findIndex(p=>p.id===starter.value);
-        if(currentTurnIdx === -1) currentTurnIdx = 0;
-        gameState = 'PLAYING'; startTime = Date.now(); triggerSave(); render();
+    window.setSuggVal = (k, v) => { 
+        tempSugg[k] = v; 
+        if (k === 'showerId') tempSugg.cardShown = '';
+        window.updateFormSelection(); 
+    };
+    
+    window.syncSetupToState = () => {
+        const rows = document.querySelectorAll('#playerInputsContainer .player-input-row');
+        players = Array.from(rows).map(r => ({
+            id: String(r.dataset.playerId),
+            name: r.querySelector('input[type="text"]').value,
+            cardCount: parseInt(r.querySelector('input[type="number"]').value) || 6
+        }));
+        triggerSave();
     };
 
-    function render() {
-        const setup = document.getElementById('setupView');
-        const play = document.getElementById('playView');
-        const nav = document.getElementById('navBar');
+    window.addPlayerInput = (n='', c=6, existingId=null) => {
+        const cont = document.getElementById('playerInputsContainer');
+        if (!cont) return;
+        const id = existingId !== null ? String(existingId) : String(Date.now() + Math.random());
+        const div = document.createElement('div');
+        div.className = 'player-input-row animate-in';
+        div.dataset.playerId = id;
+        div.innerHTML = `
+            <div class="player-badge"><span class="material-icons">person</span></div>
+            <input type="text" placeholder="Name" value="${n||'Player'}" oninput="window.syncSetupToState()">
+            <input type="number" value="${c}" min="1" oninput="window.syncSetupToState()">
+            <button class="btn-remove-player" onclick="this.parentElement.remove(); window.syncSetupToState();">
+                <span class="material-icons">remove_circle</span>
+            </button>
+        `;
+        cont.appendChild(div);
+        if (existingId === null) window.syncSetupToState();
+    };
+
+    window.startGame = () => {
+        window.syncSetupToState();
+        if (players.length < 2) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Not enough players',
+                text: 'Please add at least 2 players to start.',
+                confirmButtonColor: 'var(--primary)'
+            });
+            return;
+        }
+        gameState = 'PLAYING'; currentTurnIdx = 0; triggerSave(); render();
+    };
+
+    window.switchTab = (t) => {
+        const tabs = ['BOARD', 'LOG', 'NEW'];
+        tabs.forEach(id => {
+            const el = document.getElementById('tab-' + id);
+            if (el) {
+                el.classList.toggle('hidden', id !== t);
+                if (id === t) {
+                    el.classList.remove('animate-in');
+                    void el.offsetWidth; // Trigger reflow
+                    el.classList.add('animate-in');
+                }
+            }
+        });
         
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.id === 'tabBtn' + t.charAt(0) + t.slice(1).toLowerCase()) {
+                btn.classList.add('active');
+            } else if (btn.id.startsWith('tabBtn')) {
+                btn.classList.remove('active');
+            }
+        });
+
+        if (t === 'NEW' && editingIndex === null) {
+            tempSugg.suggesterId = players[currentTurnIdx]?.id || null;
+            const rec = getRecommendation();
+            tempSugg.suspect = rec.suspect || CATEGORIES.SUSPECTS[0];
+            tempSugg.weapon = rec.weapon || CATEGORIES.WEAPONS[0];
+            tempSugg.room = rec.room || CATEGORIES.ROOMS[0];
+            window.updateFormSelection();
+        }
+    };
+
+    window.adjustTurn = (delta) => {
+        currentTurnIdx = (currentTurnIdx + delta + players.length) % players.length;
+        render(); triggerSave();
+    };
+
+    window.toggleManualOverride = (cardName, playerId) => {
+        if (!manualOverrides[cardName]) manualOverrides[cardName] = {};
+        const cur = manualOverrides[cardName][playerId] || 0;
+        let next = 0;
+        if (cur === 0) next = 1;
+        else if (cur === 1) next = -1;
+        else next = 0;
+        
+        if (next === 0) delete manualOverrides[cardName][playerId];
+        else manualOverrides[cardName][playerId] = next;
+        triggerSave(); render();
+    };
+
+    window.submitSuggestion = () => {
+        const s = { ...tempSugg, timestamp: Date.now() };
+        if (editingIndex !== null) { suggestions[editingIndex] = s; editingIndex = null; }
+        else { suggestions.push(s); currentTurnIdx = (currentTurnIdx + 1) % players.length; }
+        triggerSave(); render(); window.switchTab('BOARD');
+        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, suspect: '', weapon: '', room: '', showerId: -1, cardShown: '', type: 'SUGGESTION' };
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        document.getElementById('submitBtn').innerText = 'Log Result';
+    };
+
+    window.skipTurn = () => {
+        suggestions.push({ type: 'SKIP', suggesterId: players[currentTurnIdx].id, timestamp: Date.now() });
+        currentTurnIdx = (currentTurnIdx + 1) % players.length;
+        triggerSave(); render(); window.switchTab('BOARD');
+    };
+
+    window.editSuggestion = (index) => {
+        editingIndex = index;
+        const s = suggestions[index];
+        tempSugg = { ...s };
+        window.switchTab('NEW');
+        document.getElementById('submitBtn').innerText = 'Update';
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        window.updateFormSelection();
+    };
+
+    window.cancelEdit = () => {
+        editingIndex = null;
+        tempSugg = { suggesterId: players[currentTurnIdx]?.id || null, suspect: '', weapon: '', room: '', showerId: -1, cardShown: '', type: 'SUGGESTION' };
+        document.getElementById('submitBtn').innerText = 'Log Result';
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        window.switchTab('LOG');
+    };
+
+    window.deleteSuggestion = (index) => {
+        Swal.fire({
+            title: 'Delete log?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--danger)',
+            cancelButtonColor: 'var(--text-muted)',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                suggestions.splice(index, 1);
+                triggerSave();
+                render();
+            }
+        });
+    };
+
+    window.updatePlayerName = (id, v) => { 
+        const p = players.find(x => x.id === String(id));
+        if (p) p.name = v; triggerSave(); 
+    };
+
+    window.resetGame = () => { 
+        Swal.fire({
+            title: 'Reset entire session?',
+            text: "All progress and history will be cleared.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: 'var(--danger)',
+            cancelButtonColor: 'var(--text-muted)',
+            confirmButtonText: 'Yes, reset it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                players = []; myCards = []; suggestions = []; gameState = 'SETUP'; currentTurnIdx = 0; manualOverrides = {};
+                const cont = document.getElementById('playerInputsContainer');
+                if (cont) cont.innerHTML = ''; 
+                localStorage.removeItem(STORAGE_KEY);
+                render();
+            }
+        });
+    };
+
+    window.updateFormSelection = () => {
+        const fillGrid = (id, list, k) => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = list.map(i => `<button class="btn-option ${String(tempSugg[k]) === String(i.id||i) ? 'active' : ''}" onclick="window.setSuggVal('${k}', '${i.id||i}')">${i.name||i}</button>`).join('');
+        };
+        fillGrid('suggesterOptions', players, 'suggesterId');
+        fillGrid('suspectOptions', CATEGORIES.SUSPECTS, 'suspect');
+        fillGrid('weaponOptions', CATEGORIES.WEAPONS, 'weapon');
+        fillGrid('roomOptions', CATEGORIES.ROOMS, 'room');
+        const showEl = document.getElementById('showerOptions');
+        if (showEl) {
+            let html = `<button class="btn-option ${tempSugg.showerId === -1 ? 'active' : ''}" onclick="window.setSuggVal('showerId', -1)">No One</button>`;
+            players.forEach(p => { if (String(p.id) !== String(tempSugg.suggesterId)) html += `<button class="btn-option ${String(tempSugg.showerId) === String(p.id) ? 'active' : ''}" onclick="window.setSuggVal('showerId', '${p.id}')">${p.name}</button>`; });
+            showEl.innerHTML = html;
+        }
+        const spec = document.getElementById('specificCardSection');
+        if (spec) {
+            if (tempSugg.showerId !== -1) {
+                spec.classList.remove('hidden');
+                const cards = [tempSugg.suspect, tempSugg.weapon, tempSugg.room].filter(Boolean);
+                document.getElementById('shownCardOptions').innerHTML = `<button class="btn-option ${tempSugg.cardShown === '' ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '')">Unknown</button>` + cards.map(c => `<button class="btn-option ${tempSugg.cardShown === c ? 'active' : ''}" onclick="window.setSuggVal('cardShown', '${c}')">${c}</button>`).join('');
+            } else { spec.classList.add('hidden'); tempSugg.cardShown = ''; }
+        }
+    };
+
+    // --- Deductions ---
+    function calculateDeductions() {
+        if (!players.length) return;
+        ALL_CARDS.forEach(card => {
+            gameDeductionMatrix[card] = {};
+            players.forEach(p => {
+                const isMe = players[0].id === p.id;
+                const manual = manualOverrides[card]?.[p.id] || 0;
+                if (manual !== 0) gameDeductionMatrix[card][p.id] = manual;
+                else if (isMe) gameDeductionMatrix[card][p.id] = myCards.includes(card) ? 1 : -1;
+                else gameDeductionMatrix[card][p.id] = myCards.includes(card) ? -1 : 0;
+            });
+        });
+
+        const loop = () => {
+            let changed = false;
+            suggestions.filter(s => s.type === 'SUGGESTION').forEach(s => {
+                const cards = [s.suspect, s.weapon, s.room];
+                const suggIdx = players.findIndex(p => p.id === String(s.suggesterId));
+                const showerIdx = s.showerId === -1 ? -1 : players.findIndex(p => p.id === String(s.showerId));
+                if (suggIdx === -1) return;
+                let curIdx = (suggIdx + 1) % players.length;
+                const endIdx = s.showerId === -1 ? suggIdx : showerIdx;
+                while (curIdx !== endIdx) {
+                    const pId = players[curIdx].id;
+                    cards.forEach(c => { if (gameDeductionMatrix[c][pId] !== -1) { gameDeductionMatrix[c][pId] = -1; changed = true; } });
+                    curIdx = (curIdx + 1) % players.length;
+                }
+                if (s.cardShown && s.showerId !== -1) { if (gameDeductionMatrix[s.cardShown][s.showerId] !== 1) { gameDeductionMatrix[s.cardShown][s.showerId] = 1; changed = true; } }
+                if (s.showerId !== -1 && !s.cardShown) {
+                    const unknowns = cards.filter(c => gameDeductionMatrix[c][s.showerId] === 0);
+                    const hasOne = cards.some(c => gameDeductionMatrix[c][s.showerId] === 1);
+                    if (!hasOne && unknowns.length === 1) { gameDeductionMatrix[unknowns[0]][s.showerId] = 1; changed = true; }
+                }
+            });
+            ALL_CARDS.forEach(c => {
+                const owner = players.find(p => gameDeductionMatrix[c][p.id] === 1);
+                if (owner) players.forEach(p => { if (p.id !== owner.id && gameDeductionMatrix[c][p.id] !== -1) { gameDeductionMatrix[c][p.id] = -1; changed = true; } });
+            });
+            players.forEach(p => {
+                const confirmed = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1);
+                const potential = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] !== -1);
+                if (p.cardCount > 0) {
+                    if (confirmed.length === p.cardCount) ALL_CARDS.forEach(c => { if (gameDeductionMatrix[c][p.id] === 0) { gameDeductionMatrix[c][p.id] = -1; changed = true; } });
+                    else if (potential.length === p.cardCount) potential.forEach(c => { if (gameDeductionMatrix[c][p.id] === 0) { gameDeductionMatrix[c][p.id] = 1; changed = true; } });
+                }
+            });
+            Object.values(CATEGORIES).forEach(items => {
+                const ruledOut = items.filter(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
+                if (ruledOut.length === 0) {
+                    const possible = items.filter(c => !players.some(p => gameDeductionMatrix[c][p.id] === 1));
+                    if (possible.length === 1) players.forEach(p => { if (gameDeductionMatrix[possible[0]][p.id] !== -1) { gameDeductionMatrix[possible[0]][p.id] = -1; changed = true; } });
+                }
+            });
+            return changed;
+        };
+        let limit = 40; while(loop() && limit-- > 0);
+    }
+
+    function getRecommendation() {
+        if (!players.length) return { allFound: false };
+        const findSol = (list) => list.find(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
+        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
+        const findBest = (list) => {
+            let best = list[0], maxU = -1;
+            list.forEach(c => { if (!myCards.includes(c)) { let u = players.filter((p, i) => i !== 0 && gameDeductionMatrix[c][p.id] === 0).length; if (u > maxU) { maxU = u; best = c; } } });
+            return best;
+        };
+        return { suspect: sol.suspect || findBest(CATEGORIES.SUSPECTS), weapon: sol.weapon || findBest(CATEGORIES.WEAPONS), room: sol.room || findBest(CATEGORIES.ROOMS), allFound: !!(sol.suspect && sol.weapon && sol.room) };
+    }
+
+    // --- UI Render ---
+    function render() {
+        const setupView = document.getElementById('setupView');
+        const playView = document.getElementById('playView');
+
         if (gameState === 'SETUP') {
-            setup.classList.remove('hidden'); play.classList.add('hidden'); nav.classList.add('hidden');
+            if (setupView) setupView.classList.remove('hidden');
+            if (playView) playView.classList.add('hidden');
             renderSetup();
         } else {
-            setup.classList.add('hidden'); play.classList.remove('hidden'); nav.classList.remove('hidden');
-            runDeepDeduction();
+            if (setupView) setupView.classList.add('hidden');
+            if (playView) playView.classList.remove('hidden');
+            calculateDeductions();
             document.getElementById('currentTurnNameDisplay').innerText = players[currentTurnIdx]?.name || 'Unknown';
-            document.getElementById('myLocationDisplay').innerText = myLocation || 'Hallway';
-            
-            // Handle Logic Error
-            const alert = document.getElementById('contradictionAlert');
-            if (hasContradiction) alert.classList.remove('hidden'); else alert.classList.add('hidden');
-
+            document.getElementById('turnStatusDot').style.background = currentTurnIdx === 0 ? 'var(--primary)' : '#94a3b8';
             renderBoard(); renderLog();
         }
     }
 
-    // --- Components ---
     function renderSetup() {
-        const charSel = document.getElementById('myCharacterSelect');
-        if(charSel) charSel.innerHTML = '<option value="">Select a Suspect...</option>' + CATEGORIES.SUSPECTS.map(s => `<option value="${s}" ${myCharacter===s?'selected':''}>${s}</option>`).join('');
-        
-        const grid = document.getElementById('setupCardsGrid'); grid.innerHTML = '';
+        const grid = document.getElementById('setupCardsGrid');
+        grid.innerHTML = '';
         Object.entries(CATEGORIES).forEach(([cat, items]) => {
-            grid.innerHTML += `<div style="width:100%;font-size:10px;margin-top:12px;color:var(--text-muted);text-transform:uppercase;font-weight:700;">${cat}</div>`;
+            const h3 = document.createElement('h3');
+            h3.style.cssText = 'width:100%; font-size:10px; margin-top:16px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;';
+            h3.innerText = cat; grid.appendChild(h3);
             items.forEach(item => {
-                const isSel = myCards.includes(item); const col = categoryColors[item];
-                const style = col ? (isSel ? `background:${col};color:white;border-color:${col}` : `border-left:4px solid ${col}`) : '';
-                grid.innerHTML += `<button class="setup-pill ${isSel?'selected':''}" style="${style}" onclick="window.toggleCard('${item}')">${item}</button>`;
+                const btn = document.createElement('button');
+                btn.className = `card-pill ${myCards.includes(item) ? 'selected' : ''}`;
+                btn.innerText = item;
+                btn.onclick = () => { myCards = myCards.includes(item) ? myCards.filter(c => c !== item) : [...myCards, item]; triggerSave(); renderSetup(); };
+                grid.appendChild(btn);
             });
         });
-        
-        const pCont = document.getElementById('playerInputsContainer');
-        if(!pCont.children.length && players.length > 0) {
-            players.forEach(p => window.addPlayerInput(p.name, p.cardCount, p.id));
-        } else if (!pCont.children.length) {
-            window.addPlayerInput('Me'); window.addPlayerInput('Player 2'); window.addPlayerInput('Player 3');
+        if (!document.getElementById('playerInputsContainer').children.length) {
+            if (players.length) players.forEach(p => window.addPlayerInput(p.name, p.cardCount, p.id));
+            else { window.addPlayerInput('Me', 6); window.addPlayerInput('Player 2', 6); window.addPlayerInput('Player 3', 6); }
         }
     }
 
     function renderBoard() {
+        const findSol = (list) => list.find(c => players.every(p => gameDeductionMatrix[c][p.id] === -1));
+        const sol = { suspect: findSol(CATEGORIES.SUSPECTS), weapon: findSol(CATEGORIES.WEAPONS), room: findSol(CATEGORIES.ROOMS) };
         const rec = getRecommendation();
-        document.getElementById('recommendationText').innerHTML = rec.allFound 
-            ? `<div style="width:100%;text-align:center;font-weight:900;color:var(--success);">CASE SOLVED</div>` 
-            : `${createColoredChip(rec.suspect)} ${createColoredChip(rec.weapon)} ${createColoredChip(rec.room)}`;
-        
-        const solGrid = document.getElementById('solutionBanner'); solGrid.innerHTML = '';
-        ['suspect', 'weapon', 'room'].forEach(k => {
-            const val = rec.allFound ? rec[k] : (players.every(p => gameDeductionMatrix[rec[k]]?.[p.id] === -1) ? rec[k] : null);
-            solGrid.innerHTML += `<div class="solution-card ${val?'found':''}"><div class="solution-label">${k}</div><div class="solution-value">${val||'?'}</div></div>`;
-        });
-
-        const head = document.getElementById('tableHeader'); 
-        head.innerHTML = '<th>Card</th>';
-        players.forEach(p => {
-             const conf = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1).length;
-             const init = p.name.substring(0, 2).toUpperCase();
-             head.innerHTML += `
-                <th>
-                    <div class="header-cell-content">
-                        <div class="player-avatar-small">${init}</div>
-                        <input type="text" class="header-name-edit" value="${p.name}" oninput="window.updatePlayerName('${p.id}',this.value)">
-                        <div class="card-count-badge">${conf}/${p.cardCount}</div>
-                    </div>
-                </th>`;
-        });
+        const recText = document.getElementById('recommendationText');
+        if (currentTurnIdx === 0) document.getElementById('recommendationHeader').innerText = "Recommended for you";
+        else document.getElementById('recommendationHeader').innerText = "Investigation Strategy";
+        recText.innerHTML = rec.allFound ? `<span class="sugg-chip" style="background:rgba(16,185,129,0.2); color:var(--success);">CASE SOLVED!</span>` : `<span class="sugg-chip">${rec.suspect}</span> <span class="sugg-chip">${rec.weapon}</span> <span class="sugg-chip">${rec.room}</span>`;
+        document.getElementById('solutionBanner').innerHTML = ['suspect', 'weapon', 'room'].map(k => `<div class="solution-card ${sol[k] ? 'found' : ''}"><div class="solution-label">${k}</div><div class="solution-value">${sol[k] || '?'}</div></div>`).join('');
+        document.getElementById('tableHeader').innerHTML = '<th>Card</th>' + players.map(p => {
+            const confirmed = ALL_CARDS.filter(c => gameDeductionMatrix[c][p.id] === 1).length;
+            return `<th><div class="header-cell-content"><input type="text" class="header-edit" value="${p.name}" oninput="window.updatePlayerName('${p.id}', this.value)"><div class="card-count-indicator">${confirmed}/${p.cardCount}</div></div></th>`;
+        }).join('');
         const body = document.getElementById('tableBody'); body.innerHTML = '';
         Object.entries(CATEGORIES).forEach(([cat, items]) => {
             body.innerHTML += `<tr class="category-row"><td colspan="${players.length+1}">${cat}</td></tr>`;
             items.forEach(item => {
-                const prob = cardProbabilities[item] || 0;
-                let row = `<tr><td><div class="card-row-info"><div class="card-row-name">${item}</div><div class="prob-bar-container"><div class="prob-bar" style="width:${prob}%"></div></div><div class="card-row-meta">${prob}% Chance</div></div></td>`;
+                const isSol = Object.values(sol).includes(item);
+                const isRec = currentTurnIdx === 0 && [rec.suspect, rec.weapon, rec.room].includes(item);
+                let row = `<tr class="${isSol ? 'row-found' : ''} ${isRec ? 'row-recommended' : ''}"><td>${item}</td>`;
                 players.forEach(p => {
                     const s = gameDeductionMatrix[item][p.id];
+                    const icon = s === 1 ? 'check_circle' : (s === -1 ? 'cancel' : 'help_outline');
                     const man = manualOverrides[item]?.[p.id];
-                    const icon = s===1?'check_circle':(s===-1?'cancel':'help_outline');
-                    row += `<td class="deduction-cell ${man===1?'manual-yes':(man===-1?'manual-no':'')}" onclick="window.toggleManualOverride('${item}','${p.id}')"><div class="${s===1?'cell-yes':(s===-1?'cell-no':'cell-unknown')}"><span class="material-icons">${icon}</span></div></td>`;
+                    row += `<td class="deduction-cell ${man === 1 ? 'manual-yes' : (man === -1 ? 'manual-no' : '')}" onclick="window.toggleManualOverride('${item}', '${p.id}')"><div class="${s === 1 ? 'cell-yes' : (s === -1 ? 'cell-no' : 'cell-unknown')}"><span class="material-icons">${icon}</span></div></td>`;
                 });
                 body.innerHTML += row + '</tr>';
             });
@@ -1052,112 +1055,15 @@
 
     function renderLog() {
         const cont = document.getElementById('logContainer');
-        if (!suggestions.length) return cont.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);font-weight:700;">No history logged yet.</div>`;
-        cont.innerHTML = suggestions.map((s, i) => {
-            if(s.type==='SKIP') return `<div class="log-card animate-in"><div class="log-header"><span>SKIP TURN</span><span style="font-weight:400;color:var(--text-muted);">${new Date(s.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span></div><div style="font-size:13px;">${players.find(p=>p.id==s.suggesterId)?.name||'Unknown'} passed.</div><button class="btn-log-del" onclick="window.deleteSuggestion(${i})"><span class="material-icons">delete</span></button></div>`;
-            const shower = s.showerId === -1 ? 'Nobody' : players.find(p=>p.id==s.showerId)?.name||'Unknown';
-            return `<div class="log-card animate-in" onclick="window.editSuggestion(${i})"><div class="log-header"><span>${players.find(p=>p.id==s.suggesterId)?.name||'Unknown'} asked:</span><span style="font-weight:400;color:var(--text-muted);">${new Date(s.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span></div><div class="log-chips">${createColoredChip(s.suspect)}${createColoredChip(s.weapon)}${createColoredChip(s.room)}</div><div class="log-result">${shower} showed ${s.cardShown?`<b>${s.cardShown}</b>`:'a card'}</div><button class="btn-log-del" onclick="event.stopPropagation();window.deleteSuggestion(${i})"><span class="material-icons">delete</span></button></div>`;
+        if (!suggestions.length) return cont.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px; font-weight:700;">No history logged yet.</p>`;
+        cont.innerHTML = suggestions.map((s, idx) => {
+            const time = s.timestamp ? new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            const p = players.find(x => x.id === String(s.suggesterId))?.name || 'Someone';
+            if (s.type === 'SKIP') return `<div class="log-item animate-in"><div class="log-header"><div class="log-who-wrap"><div class="log-who">${p} skipped turn</div><div class="log-timestamp">${time}</div></div><div class="log-actions"><button class="btn-log-action delete" onclick="window.deleteSuggestion(${idx})"><span class="material-icons">delete_outline</span></button></div></div></div>`;
+            const sh = s.showerId === -1 ? 'No one' : players.find(x => x.id === String(s.showerId))?.name || 'Someone';
+            return `<div class="log-item animate-in"><div class="log-header"><div class="log-who-wrap"><div class="log-who">${p} inquired:</div><div class="log-timestamp">${time}</div></div><div class="log-actions"><button class="btn-log-action" onclick="window.editSuggestion(${idx})"><span class="material-icons">edit</span></button><button class="btn-log-action delete" onclick="window.deleteSuggestion(${idx})"><span class="material-icons">delete_outline</span></button></div></div><div class="log-tag-group"><span class="log-badge">${s.suspect}</span><span class="log-badge">${s.weapon}</span><span class="log-badge">${s.room}</span></div><div class="log-result">${sh} showed card${s.cardShown ? ` (${s.cardShown})` : ''}</div></div>`;
         }).reverse().join('');
     }
-
-    // --- Helpers ---
-    window.setSuggVal = (k, v) => { tempSugg[k] = v; if (k === 'showerId') tempSugg.cardShown = ''; window.updateFormSelection(); };
-    window.quickFill = (v) => { if(CATEGORIES.SUSPECTS.includes(v)) tempSugg.suspect=v; else if(CATEGORIES.WEAPONS.includes(v)) tempSugg.weapon=v; else tempSugg.room=v; window.updateFormSelection(); };
-    window.updateFormSelection = () => {
-        const fill = (id, list, k) => {
-            document.getElementById(id).innerHTML = list.map(i => {
-                const n = i.name||i; const active = String(tempSugg[k]) === String(i.id||i);
-                const col = categoryColors[n];
-                const style = active && col ? `background:${col};border-color:${col};color:white` : '';
-                return `<button class="btn-option ${active?'active':''}" style="${style}" onclick="window.setSuggVal('${k}','${i.id||i}')">${n}</button>`;
-            }).join('');
-        };
-        fill('suggesterOptions', players, 'suggesterId');
-        fill('suspectOptions', CATEGORIES.SUSPECTS, 'suspect');
-        fill('weaponOptions', CATEGORIES.WEAPONS, 'weapon');
-        fill('roomOptions', CATEGORIES.ROOMS, 'room');
-        
-        const myId = players[0].id;
-        document.getElementById('myHandHelper').classList.toggle('hidden', String(tempSugg.showerId) !== String(myId));
-        document.getElementById('showerOptions').innerHTML = `<button class="btn-option ${tempSugg.showerId===-1?'active':''}" onclick="window.setSuggVal('showerId',-1)">No One</button>` + players.filter(p=>p.id!=tempSugg.suggesterId).map(p=>`<button class="btn-option ${tempSugg.showerId==p.id?'active':''}" onclick="window.setSuggVal('showerId','${p.id}')">${p.name}</button>`).join('');
-        
-        const spec = document.getElementById('specificCardSection');
-        if(tempSugg.showerId !== -1) {
-            spec.classList.remove('hidden');
-            const cards = [tempSugg.suspect, tempSugg.weapon, tempSugg.room].filter(Boolean);
-            document.getElementById('shownCardOptions').innerHTML = `<button class="btn-option ${tempSugg.cardShown===''?'active':''}" onclick="window.setSuggVal('cardShown','')">Unknown</button>` + cards.map(c => {
-                const active = tempSugg.cardShown === c; const col = categoryColors[c];
-                return `<button class="btn-option ${active?'active':''}" style="${active&&col?`background:${col};border-color:${col};color:white`:''}" onclick="window.setSuggVal('cardShown','${c}')">${c}</button>`;
-            }).join('');
-        } else { spec.classList.add('hidden'); tempSugg.cardShown = ''; }
-    };
-
-    window.toggleCard = (i) => { myCards = myCards.includes(i) ? myCards.filter(c=>c!==i) : [...myCards, i]; triggerSave(); renderSetup(); };
-    window.setMyCharacter = (v) => { myCharacter = v; triggerSave(); };
-    window.promptLocationChange = async () => {
-        const options = {'': 'Hallway / Moving'}; CATEGORIES.ROOMS.forEach(r => options[r] = r);
-        const { value: room } = await Swal.fire({ title: 'Set Location', input: 'select', inputOptions: options, inputValue: myLocation, showCancelButton: true });
-        if (room !== undefined) { myLocation = room; triggerSave(); render(); }
-    };
-    window.adjustTurn = (d) => { currentTurnIdx = (currentTurnIdx + d + players.length) % players.length; render(); triggerSave(); };
-    window.toggleManualOverride = (c, pid) => { 
-        if (!manualOverrides[c]) manualOverrides[c] = {};
-        const cur = manualOverrides[c][pid] || 0;
-        const next = cur === 0 ? 1 : (cur === 1 ? -1 : 0);
-        manualOverrides[c][pid] = next; if (next === 0) delete manualOverrides[c][pid];
-        triggerSave(); render(); 
-    };
-    window.submitSuggestion = () => {
-        const s = { ...tempSugg, timestamp: Date.now() };
-        if (editingIndex !== null) { suggestions[editingIndex] = s; editingIndex = null; }
-        else { 
-            suggestions.push(s); 
-            if (s.suspect === myCharacter && CATEGORIES.ROOMS.includes(s.room)) { myLocation = s.room; Swal.fire({ toast: true, position: 'top', icon: 'info', title: `Moved to ${s.room}`, showConfirmButton: false, timer: 2000 }); }
-            currentTurnIdx = (currentTurnIdx + 1) % players.length; 
-        }
-        document.getElementById('cancelEditBtn').classList.add('hidden'); document.getElementById('submitBtn').innerText = 'Log Turn';
-        triggerSave(); render(); window.switchTab('BOARD');
-    };
-    window.skipTurn = () => { suggestions.push({ type: 'SKIP', suggesterId: players[currentTurnIdx].id, timestamp: Date.now() }); currentTurnIdx = (currentTurnIdx + 1) % players.length; triggerSave(); render(); window.switchTab('BOARD'); };
-    window.deleteSuggestion = (i) => { suggestions.splice(i, 1); triggerSave(); render(); };
-    window.editSuggestion = (i) => { editingIndex = i; tempSugg = { ...suggestions[i] }; window.switchTab('NEW'); document.getElementById('submitBtn').innerText = 'Update Log'; document.getElementById('cancelEditBtn').classList.remove('hidden'); window.updateFormSelection(); };
-    window.cancelEdit = () => { editingIndex = null; document.getElementById('submitBtn').innerText = 'Log Turn'; document.getElementById('cancelEditBtn').classList.add('hidden'); window.switchTab('LOG'); };
-    window.updatePlayerName = (id, v) => { players.find(p => p.id === id).name = v; triggerSave(); };
-    window.toggleCustomization = () => { const m=document.getElementById('mainSetupCard'), c=document.getElementById('customizationCard'); if(c.classList.contains('hidden')){ m.classList.add('hidden'); c.classList.remove('hidden'); renderCustomizationInputs(); } else { c.classList.add('hidden'); m.classList.remove('hidden'); updateAllCards(); renderSetup(); triggerSave(); } };
-    window.addCustomCard = (k) => { CATEGORIES[k].push(k==='SUSPECTS'?'New Person':'New Item'); renderCustomizationInputs(); };
-    window.removeCustomCard = (k,i) => { const it=CATEGORIES[k][i]; CATEGORIES[k].splice(i,1); myCards=myCards.filter(c=>c!==it); delete manualOverrides[it]; delete categoryColors[it]; renderCustomizationInputs(); };
-    window.updateCategoryColor = (n,c) => { categoryColors[n]=c; triggerSave(); };
-    window.updateCategoryName = (k,i,v) => { const o=CATEGORIES[k][i]; CATEGORIES[k][i]=v; if(categoryColors[o]){ categoryColors[v]=categoryColors[o]; delete categoryColors[o]; } };
-    function renderCustomizationInputs() {
-        ['SUSPECTS','WEAPONS','ROOMS'].forEach(k=>{
-            document.getElementById('edit'+k.charAt(0)+k.slice(1).toLowerCase()).innerHTML = CATEGORIES[k].map((n,i)=>`<div class="player-input-row animate-in" style="padding:4px;grid-template-columns:32px 1fr auto;"><input type="color" class="color-input" value="${categoryColors[n]||'#6366f1'}" onchange="window.updateCategoryColor('${n}',this.value)"><input type="text" value="${n}" oninput="window.updateCategoryName('${k}',${i},this.value)" style="flex:1;background:transparent;border:none;font-weight:700;"><button onclick="window.removeCustomCard('${k}',${i})" style="color:var(--danger);background:transparent;"><span class="material-icons">remove_circle</span></button></div>`).join('') + `<button onclick="window.addCustomCard('${k}')" class="btn-secondary" style="margin-top:4px;font-size:12px;">+ Add ${k.toLowerCase()}</button>`;
-        });
-    }
-    
-    // Feature: Reveal Advisor
-    window.adviseReveal = () => {
-        const { suspect, weapon, room, suggesterId } = tempSugg;
-        if (!suspect || !weapon || !room) return Swal.fire({ icon:'info', text:'Select all 3 cards first.' });
-        const myHand = [suspect, weapon, room].filter(c => myCards.includes(c));
-        if (myHand.length === 0) return Swal.fire({ icon:'warning', title:'No Cards!', text: "You don't have any of these cards." });
-        
-        let bestCard = myHand[0], bestScore = -100, rationale = "";
-        myHand.forEach(c => {
-            const inqKnown = gameDeductionMatrix[c][suggesterId] === 1;
-            let othersKnowing = 0; players.forEach(p => { if(p.id !== players[0].id && gameDeductionMatrix[c][p.id] === 1) othersKnowing++; });
-            let score = inqKnown ? 10 : (othersKnowing > 0 ? 5 : 0);
-            if (score > bestScore) { bestScore = score; bestCard = c; }
-        });
-        if (bestScore === 10) rationale = "Inquirer already knows you have this.";
-        else if (bestScore === 5) rationale = "Other players already know this card.";
-        else rationale = "All options reveal new info.";
-        Swal.fire({ title: `Show: ${bestCard}`, text: rationale, icon: 'success' });
-    };
-
-    window.resetGame = (force) => {
-        const reset = () => { localStorage.removeItem(STORAGE_KEY); location.reload(); };
-        if(force) reset(); else Swal.fire({ title:'Reset?', icon:'warning', showCancelButton:true, confirmButtonColor:'#ef4444' }).then(r=>{if(r.isConfirmed)reset()});
-    };
 
     window.onload = loadState;
 </script>
